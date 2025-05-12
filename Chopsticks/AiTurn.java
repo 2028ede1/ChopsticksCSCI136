@@ -46,19 +46,51 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 	public int evaluateState(OurGameState currentState) {
 
 		if (currentState.getPlayerHands().bothHandsOut()) {
-			return 10;
+			return 100;
 		}
 
 		if (currentState.getAiHands().bothHandsOut()) {
-			return -10;
+			return -100;
 		}
 
 		if (currentState.getAiHands().canBump()) {
-			return 8;
+			return 40;
 		}
 
 		if (currentState.getPlayerHands().canBump()) {
+			return -40;
+		}
+
+		if (currentState.getAiHands().getLeftFingers() == 4) {
 			return -8;
+		}
+
+		if (currentState.getAiHands().getRightFingers() == 4) {
+			return -8;
+		}
+
+		if (currentState.getPlayerHands().getLeftFingers() == 4) {
+			return +8;
+		}
+
+		if (currentState.getPlayerHands().getRightFingers() == 4) {
+			return +8;
+		}
+
+		if (currentState.getAiHands().getLeftFingers() < 3){
+			return 60;
+		}
+
+		if (currentState.getAiHands().getRightFingers() < 3){
+			return 60;
+		}
+
+		if (currentState.getPlayerHands().getLeftFingers() < 3) {
+			return -60;
+		}
+
+		if (currentState.getPlayerHands().getRightFingers() < 3) {
+			return -60;
 		}
 
 		return 0;
@@ -174,9 +206,8 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 	 * Evaluates the long-term consequences of being in the given game state, 
 	 * assuming both the AI (score maximizer) and the simulated human player (score minimizer)
 	 * play perfectly from this point forward.
-	 * The value returned represents the guarenteed advantage/disadvantage/draw state outcome for the AI 
+	 * The value returned represents the guarenteed advantage/disadvantage/draw state outcome for the AI.
 	 */
-
 
 	public int minimax(OurGameState currentState, int depth, int maxDepth, boolean isMaxizingPlayer) {
 		if (this.isTerminalState(currentState)) {
@@ -267,7 +298,7 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 
 			startState.displayGameState();
 
-			// Early check for if game ends
+			// Early check for if game ends, if Ai has last made a winning move
 			if (startState.getPlayerHands().bothHandsOut() || startState.getAiHands().bothHandsOut()) {
 				startState.displayGameState();
 				startState.printWinner();
@@ -281,6 +312,7 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 
 				String playerMove = scanner.nextLine();
 
+				//  preform move to change game state depending on player input
 				if (playerMove.equals("Left to Right") && !startState.getPlayerHands().isLeftHandOut() && !startState.getAiHands().isRightHandOut()) {
 
 					int amountToAdd = startState.getPlayerHands().getLeftFingers();
@@ -316,11 +348,14 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 					successfulMoveMade = true;
 				}
 
+				// keep prompting until the use has typed a valid input
 				else {
 					System.out.println("Invalid move made. Please try Again.");
 				}
 
 			}
+
+			// it is now the Ai's turn, but before hand check if the player made a winning move
 
 			if (startState.getPlayerHands().bothHandsOut() || startState.getAiHands().bothHandsOut()) {
 				startState.displayGameState();
@@ -332,13 +367,16 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 			else {
 				decisionMaker.optimalMove = decisionMaker.findBestMove(startState);
 
-				// figure out difference and add
+				// computer differences between the current and present hand values from the optimal move state.
+				// the values are used to preform the move (adding fingers to the left or right hand, or simply splitting)
 
 				int different1 = decisionMaker.optimalMove.getPlayerHands().getLeftFingers() - startState.getPlayerHands().getLeftFingers();
 				int different2 = decisionMaker.optimalMove.getPlayerHands().getRightFingers() - startState.getPlayerHands().getRightFingers();
 
 				startState.getPlayerHands().addLeftHand(different1);
 				startState.getPlayerHands().addRightHand(different2);
+
+				// resets flag so player i sprompted for input again
 				successfulMoveMade = false;
 			}
 
