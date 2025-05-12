@@ -52,20 +52,20 @@ public interface MinimaxTree<Gamestate>{
    public ArrayList<Gamestate> getAvailableMoves(Gamestate currentState);
 
    /**
-   * Uses the Minimax algorithm to determine the best achievable advantage state score 
-   * from the current game state, assuming optimal play from both players.
-   *
-   * At each level/depth:
-   * - The maximizing player selects the highest score from future states.
-   * - The minimizing player selects the lowest score.
-   * 
-   * @param currentState the game state to evaluate
-   * @param depth current depth in the search tree
-   * @param maxDepth maximum depth to search in the tree
-   * @param isMaximizingPlayer True if it's the maximizer's turn; false for the minimizer. Should swap
-   * boolean values for each depth in the tree.
-   * @return the gaurenteed highest advantage state score that can be assigned 
-   * to the current state assuming both players play optimally.
+      * Uses the Minimax algorithm to determine the best achievable advantage state score 
+      * from the current game state, assuming optimal play from both players.
+      *
+      * At each level/depth:
+      * - The maximizing player selects the highest score from future states.
+      * - The minimizing player selects the lowest score.
+      * 
+      * @param currentState the game state to evaluate
+      * @param depth current depth in the search tree
+      * @param maxDepth maximum depth to search in the tree
+      * @param isMaximizingPlayer True if it's the maximizer's turn; false for the minimizer. Should swap
+      * boolean values for each depth in the tree.
+      * @return the gaurenteed highest advantage state score that can be assigned 
+      * to the current state assuming both players play optimally.
    */
    
    public int minimax(Gamestate currentState, int depth, int maxDepth, boolean isMaxizingPlayer);
