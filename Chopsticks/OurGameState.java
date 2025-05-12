@@ -55,8 +55,6 @@ public class OurGameState {
 		}
 	}
 
-
-
 	public void displayGameState() {
 
 		System.out.println("-----------------------------------------------------------");
@@ -67,6 +65,10 @@ public class OurGameState {
 		System.out.println("Computer right hand: " + this.aiHands.getRightFingers() + " fingers.");
 
 		System.out.println("-----------------------------------------------------------");
+	}
+
+	public static void main(String[] args) {
+		System.out.println("Test");
 	}
 
 }
