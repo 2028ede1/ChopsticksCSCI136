@@ -17,7 +17,7 @@ public class OurGameState {
 		this.isAiPlayerTurn = isAiPlayerTurn;
 	}
 	
-	public OurGameState copyGameState2() {
+	public OurGameState copyGameState() {
 		Hands playerCopy = new Hands(this.playerHands.getLeftFingers(), this.playerHands.getRightFingers());
     	Hands aiCopy = new Hands(this.aiHands.getLeftFingers(), this.aiHands.getRightFingers());
     	boolean isAiPlayerTurnCopy = this.isAiPlayerTurn;

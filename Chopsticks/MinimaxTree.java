@@ -28,15 +28,6 @@ public interface MinimaxTree<Gamestate>{
    public boolean isTerminalState(Gamestate currentState);
 
    /**
-    * Determine whether or not it is the Maximizers (the AI) turn or the Minimizers (the simulated human) turn
-    * 
-    * @param currentState current game state to check.
-    * @return true if its the Maximizers turn, false if its the Minimizers turn.
-    */
-
-   public boolean isMaximizerTurn(Gamestate currentState);
-
-   /**
     * Assigns a heuristic score to a terminal/intermediate game state, 
     * symbolizing who has the advantage.
     * 
