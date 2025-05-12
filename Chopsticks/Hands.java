@@ -20,9 +20,28 @@ public class Hands {
 	private int leftFingers;
 	private int rightFingers;
 
+
+	// Hands objects should have at minimum 1 finger per hand, and at most 5 fingers per hand
 	public Hands(int left, int right) {
 		this.leftFingers = left;
 		this.rightFingers = right;
+
+		if (this.rightFingers > 5) {
+			this.rightFingers = 5;
+		}
+
+		else if (this.rightFingers < 1) {
+			this.rightFingers = 1;
+		}
+
+		if (this.leftFingers > 5) {
+			this.leftFingers = 5;
+		}
+
+		else if (this.leftFingers < 1) {
+			this.leftFingers = 1;
+		}
+
 	}
 
 	public int getLeftFingers() {
@@ -33,6 +52,7 @@ public class Hands {
 		return this.rightFingers;
 	}
 
+	// In a real game, maximum amount of fingers should never be greater than 5 for either player
 	public void addLeftHand(int amount) {
 		if (leftFingers < 5) {
 			this.leftFingers += amount;
@@ -43,6 +63,7 @@ public class Hands {
 		}
 	}
 
+	// In a real game, maximum amount of fingers should never be greater than 5 for either player
 	public void addRightHand(int amount) {
 		if (rightFingers < 5) {
 			this.rightFingers += amount;
@@ -64,6 +85,7 @@ public class Hands {
 	public boolean bothHandsOut() {
 		return this.isLeftHandOut() && this.isRightHandOut();
 	}
+
 	public void bump() {
 		if (this.bothHandsOut() != true) {
 			if (this.isLeftHandOut() && this.getRightFingers() % 2 == 0) {
@@ -78,6 +100,9 @@ public class Hands {
 
 	}
 
+	// According to IRL game rules, player can bump only if one of it's hands is 
+	// out and the other hand still active has an even number of fingers.
+
 	public boolean canBump() {
 		if (this.bothHandsOut() != true) {
 			if (this.isLeftHandOut() && this.getRightFingers() % 2 == 0) {
@@ -91,7 +116,24 @@ public class Hands {
  	}
 
 
- 	public static void main(String[] args) {
-    System.out.println("Test");
+ 	public static void main(String[] args) { 
+ 		Hands playerTest = new Hands(3, 4);
+
+ 		System.out.println(playerTest.canBump()); // should be false
+ 		System.out.println("Player has " + playerTest.getLeftFingers() + " left fingers."); // Should be 5
+ 		System.out.println("Player has " + playerTest.getRightFingers() + " right fingers."); // Should be 5
+
+ 		playerTest.addLeftHand(1);
+ 		System.out.println("Player has " + playerTest.getLeftFingers() + " left fingers."); // Should be 4
+
+ 		playerTest.addLeftHand(1);
+ 		System.out.println("Player has " + playerTest.getLeftFingers() + " left fingers."); // Should be 5
+
+ 		System.out.println(playerTest.canBump()); // should be true
+
+ 		playerTest.bump();
+ 		System.out.println("Player has " + playerTest.getLeftFingers() + " left fingers."); // Should be 2
+ 		System.out.println("Player has " + playerTest.getRightFingers() + " right fingers."); // Should be 2
+
     }
 }

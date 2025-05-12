@@ -3,9 +3,7 @@ package Chopsticks;
 /**
  * The OurGameState class represents the current state of a Chopsticks game.
  * It has instance variables tracking the Hands objects of both the human player and the AI player, as well as whose turn it is.
- * 
- * 
- * 
+ * It has getters for both the playerHands and the aiHands
  */
 public class OurGameState {
 	private Hands playerHands;
@@ -68,7 +66,11 @@ public class OurGameState {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("Test");
+
+		Hands player1 = new Hands(5,6); 
+		Hands player2 = new Hands(0, -1);
+		OurGameState test = new OurGameState(player1, player2, false);
+		test.displayGameState(); // Should print 5 5 for player1 (human) and 1 1 for player 2 (computer)
 	}
 
 }
