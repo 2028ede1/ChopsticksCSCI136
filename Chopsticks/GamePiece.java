@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO; 
+import java.awt.event.*;
 
 public class GamePiece { 
 	BufferedImage leftHand, rightHand; //The left and right hand images 
@@ -47,6 +48,9 @@ public class GamePiece {
 	    JComponent c = new JComponent(){
 	    	GamePiece piece; 
 	    	GamePiece piece2; 
+	    	GamePiece dragging = null; 
+	    	int offsetX = 0; 
+	    	int offsetY = 0; 
 	    { 
 	    	try {  
 	    		BufferedImage left = ImageIO.read(GamePiece.class.getResource("/sprites/left1.png")); 
@@ -62,7 +66,50 @@ public class GamePiece {
 	    		} catch (IOException e) { 
 	    			e.printStackTrace(); 
 	    		}
-		}
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                	int mx = e.getX(); 
+                	int my = e.getY(); 
+                	if(piece!=null && (piece.leftContains(mx,my) || piece.rightContains(mx,my))){ 
+                		dragging = piece; 
+                		offsetX = mx-piece.leftx; 
+                		offsetY = my-piece.lefty; 
+
+                	}else if(piece2!=null && (piece2.leftContains(mx,my) || piece2.rightContains(mx,my))){ 
+                		dragging = piece2; 
+                		offsetX = mx-piece2.leftx; 
+                		offsetY = my-piece2.lefty;                 		
+                	}
+                } 
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    dragging = null;
+                }
+            });
+            addMouseMotionListener(new MouseMotionAdapter(){ 
+            	@Override
+            	public void mouseDragged(MouseEvent e) {
+            		if(dragging != null){ 
+            			int mx = e.getX(); 
+            			int my = e.getY(); 
+            			int dx = mx - offsetX; 
+            			int dy = my - offsetY; 
+
+            			int spacing = dragging.rightx - dragging.leftx;
+                        dragging.leftx = dx;
+                        dragging.lefty = dy;
+                        dragging.rightx = dx + spacing;
+                        dragging.righty = dy;
+                        
+            			repaint(); 
+            		}
+            	} 
+            }); 
+
+            }
 
 		@Override 
 		protected void paintComponent(Graphics g){ 

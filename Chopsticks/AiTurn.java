@@ -312,7 +312,7 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 
 				String playerMove = scanner.nextLine();
 
-				//  preform move to change game state depending on player input
+				//  perform move to change game state depending on player input
 				if (playerMove.equals("Left to Right") && !startState.getPlayerHands().isLeftHandOut() && !startState.getAiHands().isRightHandOut()) {
 
 					int amountToAdd = startState.getPlayerHands().getLeftFingers();
