@@ -37,7 +37,7 @@ public class HandsGraphics{
 		HandsGraphics hg = new HandsGraphics(); 
 	    JFrame frame = new JFrame("Image Display");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    ImageComponent imageComponent = hg.new ImageComponent("/sprites/AI.png");
+	    ImageComponent imageComponent = hg.new ImageComponent("/sprites/right5.png");
 	    frame.add(imageComponent);
 	    frame.pack();
 	    frame.setVisible(true);
