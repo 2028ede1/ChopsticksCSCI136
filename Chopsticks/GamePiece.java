@@ -7,21 +7,36 @@ import java.io.IOException;
 import javax.imageio.ImageIO; 
 
 public class GamePiece { 
-	BufferedImage image; 
-	int x, y; 
+	BufferedImage leftHand, rightHand; //The left and right hand images 
+	Hands hands; //hand object that stores the values of a pair of hands
+	int leftx, lefty, rightx, righty; //the (x,y) positions of both hands
 
-	public GamePiece(BufferedImage image, int x, int y){ 
-		this.image = image; 
-		this.x = x; 
-		this.y = y;
+	public GamePiece(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
+		this.leftHand = leftHand; 
+		this.rightHand = rightHand; 
+		this.leftx = leftx; 
+		this.lefty = lefty;
+		this.rightx = rightx; 
+		this.righty = righty; 
+		this.hands = hands; 
 	}
-	//Draws the image object
+	//Draws the images 
 	public void draw(Graphics g, JComponent c){ 
-		g.drawImage(image,x,y,c); 
+		int leftWidth = leftHand.getWidth()/4; 
+		int leftHeight = leftHand.getHeight()/4;
+		int rightWidth = rightHand.getWidth()/4; 
+		int rightHeight = rightHand.getHeight()/4;
+
+		g.drawImage(leftHand,leftx,lefty, leftWidth, leftHeight,c); 
+		g.drawImage(rightHand,rightx,righty, rightWidth, rightHeight,c); 
 	}
-	//This method determines if the mouse click is within the bounds of the image object.
-	public boolean contains(int mx, int my){ 
-		return mx >= x && mx <= x+image.getWidth() && my >= y && my <= y+image.getHeight(); 
+
+	//This method determines if the mouse click is within the bounds of the left and right hand.
+	public boolean leftContains(int mx, int my){ 
+		return mx >= leftx && mx <= leftx+leftHand.getWidth() && my >= lefty && my <= lefty+leftHand.getHeight(); 
+	}
+	public boolean rightContains(int mx, int my){ 
+		return mx >= rightx && mx <= rightx+rightHand.getWidth() && my >= righty && my <= righty+rightHand.getHeight(); 
 	}
 
 	public static void main(String[] args){
@@ -31,10 +46,19 @@ public class GamePiece {
 
 	    JComponent c = new JComponent(){
 	    	GamePiece piece; 
+	    	GamePiece piece2; 
 	    { 
 	    	try {  
-	    		BufferedImage img = ImageIO.read(GamePiece.class.getResource("/sprites/right5.png")); 
-	    		piece = new GamePiece(img, 100, 100); 
+	    		BufferedImage left = ImageIO.read(GamePiece.class.getResource("/sprites/left1.png")); 
+	    		BufferedImage right = ImageIO.read(GamePiece.class.getResource("/sprites/right1.png")); 
+	    		Hands hands = new Hands(1,1); 
+	    		Hands hands2 = new Hands(1,1); 
+	    		piece = new GamePiece(left,right, hands, 100, 100, 250 ,100); 
+	    		piece2 = new GamePiece(left,right, hands2, 450, 100, 600 ,100); 
+	    		
+
+
+
 	    		} catch (IOException e) { 
 	    			e.printStackTrace(); 
 	    		}
@@ -43,14 +67,15 @@ public class GamePiece {
 		@Override 
 		protected void paintComponent(Graphics g){ 
 			super.paintComponent(g); 
-			if(piece != null){ 
+			if(piece != null && piece2 != null){ 
 				piece.draw(g, this); 
+				piece2.draw(g, this); 
 			}
 		} 
 
 		@Override 
 		public Dimension getPreferredSize(){ 
-			return new Dimension(1000,1000); 
+			return new Dimension(3000,3000); 
 		}
 	}; 
 	    frame.add(c);
