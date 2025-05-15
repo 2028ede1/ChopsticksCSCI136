@@ -59,7 +59,7 @@ public class GamePiece {
 
 	public static void main(String[] args){
 		//(TEST CODE)
- 		JFrame frame = new JFrame("Image Display");
+ 		JFrame frame = new JFrame("Chopsticks");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	    JComponent c = new JComponent(){
@@ -69,6 +69,8 @@ public class GamePiece {
 	    	String draggingHand = ""; 
 	    	BufferedImage vs;
 	    	BufferedImage ai; 
+	    	OurGameState gameState = new OurGameState(piece.hands, piece2.hands, false); 
+	    	AiTurn aiLog = new AiTurn(); 
 
 	    	int offsetX = 0; 
 	    	int offsetY = 0; 
@@ -146,13 +148,71 @@ public class GamePiece {
 
             }
 
+            public void performMove(String fromPlayer, String fromHand, String toPlayer, String toHand){ 
+            	Hands p1, p2; 
+            	int numFingers; 
+            	if(fromPlayer.equals("player")){ 
+            		p1 = gameState.getPlayerHands(); 
+            		p2 = gameState.getAiHands(); 
+            	} else { 
+            		p1 = gameState.getAiHands();
+            		p2 = gameState.getPlayerHands();
+            	} 
+
+            	if(fromHand.equals("left")){ 
+            		numFingers = p1.getLeftFingers(); 
+            	}else{ 
+            		numFingers = p1.getRightFingers(); 
+            	} 
+
+            	if(toHand.equals("left")){ 
+            		p2.addLeftHand(numFingers); 
+            	}else{ 
+            		p2.addRightHand(numFingers); 
+            	}
+            	gameState.setIsAiPlayerTurn(fromPlayer.equals("player")); 
+            	updateImages(); 
+            	repaint(); 
+
+            	if(fromPlayer.equals("player")){ 
+            		SwingUtilities.invokeLater(() -> aiTurn()); //Built in Swing method to call ai turn after the player move is performed using lambda expression
+            	}
+            }
+
+
+         	//This method updates the gamestate based on the ai's turn
+	        public void aiTurn(){ 
+	        	if(!gameState.getIsAiPlayerTurn()) return; 
+	        	OurGameState newState = aiLog.findBestMove(gameState); 
+	        	gameState = newState; 
+	        	updateImages(); 
+	        	repaint(); 
+	        	gameState.setIsAiPlayerTurn(false); 
+	        } 
+            	
+
+        //This helper method updates the player and ai images based on the current gamestate
+        public void updateImages(){ 
+        	try { 
+        		BufferedImage pLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
+        		BufferedImage pRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
+        		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
+        		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
+        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 250, 0); 
+        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 600, 0, 750, 0); 
+
+        	} catch (IOException e) { 
+        		e.printStackTrace(); 
+        	}
+
+        }
+        //Draws the images on the canvas
 		@Override 
 		protected void paintComponent(Graphics g){ 
 			super.paintComponent(g); 
-			if(piece != null && piece2 != null){ 
-				piece.draw(g, this); 
-				piece2.draw(g, this); 
-			}
+			if(piece != null) piece.draw(g, this); 	
+			if(piece2 != null) piece2.draw(g, this);
+
 			if(vs != null){ 
 				int nw = vs.getWidth()/4;
 				int nh = vs.getHeight()/4;
