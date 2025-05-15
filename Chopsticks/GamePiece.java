@@ -22,7 +22,7 @@ public class GamePiece {
 		this.righty = righty; 
 
 		this.hands = hands; 
-
+		//original x,y positions
 		this.origLeftx = leftx; 
 		this.origLefty = lefty;
 		this.origRightx = rightx; 
@@ -31,6 +31,7 @@ public class GamePiece {
 	}
 	//Draws the images 
 	public void draw(Graphics g, JComponent c){ 
+		//Scaling the sizes
 		int leftWidth = leftHand.getWidth()/4; 
 		int leftHeight = leftHand.getHeight()/4;
 		int rightWidth = rightHand.getWidth()/4; 
@@ -62,29 +63,25 @@ public class GamePiece {
  		JFrame frame = new JFrame("Chopsticks");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	    JComponent c = new JComponent(){
+	    JComponent c = new JComponent(){	   
+	     	OurGameState gameState = new OurGameState(new Hands(1,1), new Hands(1,1), false); 
+	    	AiTurn aiLogic = new AiTurn(); 
+
 	    	GamePiece piece; 
 	    	GamePiece piece2; 
 	    	GamePiece dragging = null; 
 	    	String draggingHand = ""; 
 	    	BufferedImage vs;
-	    	BufferedImage ai; 
-	    	OurGameState gameState = new OurGameState(piece.hands, piece2.hands, false); 
-	    	AiTurn aiLog = new AiTurn(); 
+	    	BufferedImage aiImg; 
+
 
 	    	int offsetX = 0; 
 	    	int offsetY = 0; 
 	    { 
 	    	try {  
-	    		BufferedImage left = ImageIO.read(GamePiece.class.getResource("/sprites/left1.png")); 
-	    		BufferedImage right = ImageIO.read(GamePiece.class.getResource("/sprites/right1.png")); 
+	    		updateImages(); 
 	    		vs = ImageIO.read(GamePiece.class.getResource("/sprites/VS.png"));
-	    		ai = ImageIO.read(GamePiece.class.getResource("/sprites/AI.png"));
-	    		Hands hands = new Hands(1,1); 
-	    		Hands hands2 = new Hands(1,1); 
-	    		piece = new GamePiece(left,right, hands, 100, 0, 250 ,0); 
-	    		piece2 = new GamePiece(left,right, hands2, 600, 0, 750 ,0); 
-
+	    		aiImg = ImageIO.read(GamePiece.class.getResource("/sprites/AI.png")); 
 	    		} catch (IOException e) { 
 	    			e.printStackTrace(); 
 	    		}
@@ -110,10 +107,24 @@ public class GamePiece {
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                	if(dragging != null){ 
+                	int mx = e.getX(); 
+                	int my = e.getY();
+                	if(dragging != null && dragging ==piece){ 
+
+                		if(piece2.leftContains(mx,my)){ 
+                			performMove("player",draggingHand, "ai", "left");
+                		}else if (piece2.rightContains(mx,my)){ 
+                			performMove("player",draggingHand, "ai", "right");
+                		} else if (piece.leftContains(mx,my) || piece.rightContains(mx,my)){ 
+                			if (gameState.getPlayerHands().canBump()){ 
+                				gameState.getPlayerHands().bump(); 
+                			}
+                		}
+
             			if(draggingHand.equals("left")){ 
             				dragging.resetLeft(); 
-            			} else if(draggingHand.equals("right")){ 
+            			} 
+            			if(draggingHand.equals("right")){ 
                         	dragging.resetRight(); 
             			}
             			repaint(); 
@@ -149,15 +160,28 @@ public class GamePiece {
             }
 
             public void performMove(String fromPlayer, String fromHand, String toPlayer, String toHand){ 
-            	Hands p1, p2; 
             	int numFingers; 
+            	Hands p1,p2; 
+
+            	//initializes the hands based on gamestate 
             	if(fromPlayer.equals("player")){ 
             		p1 = gameState.getPlayerHands(); 
+            	}else{ 
+            		p1 = gameState.getAiHands(); 
+
+            	}
+
+            	if(toPlayer.equals("player")){ 
+            		p2 = gameState.getPlayerHands(); 
+            	}else{ 
             		p2 = gameState.getAiHands(); 
-            	} else { 
-            		p1 = gameState.getAiHands();
-            		p2 = gameState.getPlayerHands();
-            	} 
+            	}
+            	
+
+            	//Prevent moves if the hands are out
+            	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut())){
+            		return; 
+            	}
 
             	if(fromHand.equals("left")){ 
             		numFingers = p1.getLeftFingers(); 
@@ -167,23 +191,29 @@ public class GamePiece {
 
             	if(toHand.equals("left")){ 
             		p2.addLeftHand(numFingers); 
+            		System.out.println(numFingers); 
             	}else{ 
             		p2.addRightHand(numFingers); 
+            		System.out.println(numFingers); 
             	}
-            	gameState.setIsAiPlayerTurn(fromPlayer.equals("player")); 
-            	updateImages(); 
-            	repaint(); 
 
             	if(fromPlayer.equals("player")){ 
-            		SwingUtilities.invokeLater(() -> aiTurn()); //Built in Swing method to call ai turn after the player move is performed using lambda expression
+            		gameState.setIsAiPlayerTurn(true); 
+            		updateImages(); 
+            		repaint();
+            		SwingUtilities.invokeLater(() -> updateAiTurn());//Built in Swing method to call ai turn after the player move is performed using lambda expression
+            	}else{ 
+            		updateImages(); 
+            		repaint();
+
             	}
+            	
             }
 
-
-         	//This method updates the gamestate based on the ai's turn
-	        public void aiTurn(){ 
+         	//This helper method updates the gamestate based on the ai's turn
+	        public void updateAiTurn(){ 
 	        	if(!gameState.getIsAiPlayerTurn()) return; 
-	        	OurGameState newState = aiLog.findBestMove(gameState); 
+	        	OurGameState newState = aiLogic.findBestMove(gameState); 
 	        	gameState = newState; 
 	        	updateImages(); 
 	        	repaint(); 
@@ -218,10 +248,10 @@ public class GamePiece {
 				int nh = vs.getHeight()/4;
 				g.drawImage(vs, 425,50,nw,nh,this); 
 			}
-			if(ai != null){ 
-				int nw = ai.getWidth()/4;
-				int nh = ai.getHeight()/4;
-				g.drawImage(ai, 875,25,nw,nh,this); 
+			if(aiImg != null){ 
+				int nw = aiImg.getWidth()/4;
+				int nh = aiImg.getHeight()/4;
+				g.drawImage(aiImg, 875,25,nw,nh,this); 
 			}
 
 		} 

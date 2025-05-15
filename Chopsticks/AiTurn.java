@@ -257,7 +257,7 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 		OurGameState optimalMove = null;
 
 		for (OurGameState move : this.getAvailableMoves(currentState)) {
-			int moveVal = minimax(currentState, 0, 15, false);
+			int moveVal = minimax(currentState, 0, 8, false);
 			if (moveVal > bestVal) {
 				optimalMove = move;
 			}
