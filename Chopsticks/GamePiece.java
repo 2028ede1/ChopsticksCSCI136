@@ -11,6 +11,7 @@ public class GamePiece {
 	BufferedImage leftHand, rightHand; //The left and right hand images 
 	Hands hands; //hand object that stores the values of a pair of hands
 	int leftx, lefty, rightx, righty, origLeftx, origLefty, origRightx, origRighty; //the (x,y) positions of both hands
+	private static double scale = 0.25; //scale factor for images 
 
 	public GamePiece(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
 		this.leftHand = leftHand; 
@@ -31,23 +32,19 @@ public class GamePiece {
 	}
 	//Draws the images 
 	public void draw(Graphics g, JComponent c){ 
-		//Scaling the sizes
-		int leftWidth = leftHand.getWidth()/4; 
-		int leftHeight = leftHand.getHeight()/4;
-		int rightWidth = rightHand.getWidth()/4; 
-		int rightHeight = rightHand.getHeight()/4;
-
-		g.drawImage(leftHand,leftx,lefty, leftWidth, leftHeight,c); 
-		g.drawImage(rightHand,rightx,righty, rightWidth, rightHeight,c); 
+		g.drawImage(leftHand,leftx,lefty, getLeftWidth(), getLeftHeight(),c); 
+		g.drawImage(rightHand,rightx,righty, getRightWidth(), getRightHeight(),c); 
 	}
 
 	//These methods determine if the mouse click is within the bounds of the left and right hand.
 	public boolean leftContains(int mx, int my){ 
-		return mx >= leftx && mx <= leftx+(leftHand.getWidth()/4) && my >= lefty && my <= lefty+(leftHand.getHeight()/4); 
+		return mx >= leftx && mx <= leftx+getLeftWidth() && my >= lefty && my <= lefty+getLeftHeight(); 
 	}
 	public boolean rightContains(int mx, int my){ 
-		return mx >= rightx && mx <= rightx+(rightHand.getWidth()/4) && my >= righty && my <= righty+(rightHand.getHeight()/4); 
+		return mx >= rightx && mx <= rightx+getRightWidth() && my >= righty && my <= righty+getRightHeight(); 
 	}
+
+	//These methods reset the positions of the two hand images
 	public void resetLeft(){ 
 		this.leftx = origLeftx; 
 		this.lefty = origLefty; 
@@ -55,6 +52,24 @@ public class GamePiece {
 	public void resetRight(){ 
 		this.rightx = origRightx; 
 		this.righty = origRighty; 
+	}
+
+	//These methods scale and return the heights and widths of the two hand images
+	public int getLeftWidth(){ 
+		return (int)(leftHand.getWidth() * scale); 
+	}
+
+	public int getLeftHeight(){ 
+		return (int)(leftHand.getHeight() * scale); 
+	}
+
+
+	public int getRightWidth(){ 
+		return (int)(rightHand.getWidth() * scale); 
+	}
+
+	public int getRightHeight(){ 
+		return (int)(rightHand.getHeight() * scale); 
 	}
 
 
@@ -116,9 +131,7 @@ public class GamePiece {
                 		}else if (piece2.rightContains(mx,my)){ 
                 			performMove("player",draggingHand, "ai", "right");
                 		} else if (piece.leftContains(mx,my) || piece.rightContains(mx,my)){ 
-                			if (gameState.getPlayerHands().canBump()){ 
-                				gameState.getPlayerHands().bump(); 
-                			}
+                			performMove("player",draggingHand,"player","bump"); 
                 		}
 
             			if(draggingHand.equals("left")){ 
@@ -178,16 +191,27 @@ public class GamePiece {
             	}
             	
 
-            	//Prevent moves if the hands are out
-            	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut())){
+            	//Handles bumps 
+            	if(toPlayer.equals(fromPlayer) && toHand.equals("bump") ){ 
+            		if(p1.canBump()){ 
+            			p1.bump(); 
+            			endTurn(fromPlayer);
+            		}
             		return; 
             	}
 
+            	//Prevent moves if the hands are out
+            	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut()) ){
+            		return; 
+            	}	
+
+            	//initializes the current finger counter
             	if(fromHand.equals("left")){ 
             		numFingers = p1.getLeftFingers(); 
             	}else{ 
             		numFingers = p1.getRightFingers(); 
             	} 
+
 
             	if(toHand.equals("left")){ 
             		p2.addLeftHand(numFingers); 
@@ -197,17 +221,28 @@ public class GamePiece {
             		System.out.println(numFingers); 
             	}
 
+            	endTurn(fromPlayer); 
+            	
+            }
+            //Helper method for determining the game ending conditions 
+            public void endTurn(String fromPlayer){ 
+            	//Win Condition: If either Ai or Player hands are both out
+            	if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
+            		gameState.printWinner(); 
+            		return; 
+            	}
+
             	if(fromPlayer.equals("player")){ 
             		gameState.setIsAiPlayerTurn(true); 
             		updateImages(); 
             		repaint();
-            		SwingUtilities.invokeLater(() -> updateAiTurn());//Built in Swing method to call ai turn after the player move is performed using lambda expression
+            		SwingUtilities.invokeLater(() -> updateAiTurn()); //Built in Swing method to call ai turn after the player move is performed using lambda expression
             	}else{ 
+            		gameState.setIsAiPlayerTurn(false); 
             		updateImages(); 
-            		repaint();
-
+            		repaint(); 
             	}
-            	
+
             }
 
          	//This helper method updates the gamestate based on the ai's turn
@@ -215,6 +250,12 @@ public class GamePiece {
 	        	if(!gameState.getIsAiPlayerTurn()) return; 
 	        	OurGameState newState = aiLogic.findBestMove(gameState); 
 	        	gameState = newState; 
+
+				if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
+            		gameState.printWinner(); 
+            		return; 
+            	}
+
 	        	updateImages(); 
 	        	repaint(); 
 	        	gameState.setIsAiPlayerTurn(false); 
@@ -228,8 +269,8 @@ public class GamePiece {
         		BufferedImage pRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
         		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
         		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
-        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 250, 0); 
-        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 600, 0, 750, 0); 
+        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 400, 0); 
+        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 650, 0, 950, 0); 
 
         	} catch (IOException e) { 
         		e.printStackTrace(); 
@@ -246,19 +287,19 @@ public class GamePiece {
 			if(vs != null){ 
 				int nw = vs.getWidth()/4;
 				int nh = vs.getHeight()/4;
-				g.drawImage(vs, 425,50,nw,nh,this); 
+				g.drawImage(vs, 550,50,nw,nh,this); 
 			}
 			if(aiImg != null){ 
 				int nw = aiImg.getWidth()/4;
 				int nh = aiImg.getHeight()/4;
-				g.drawImage(aiImg, 875,25,nw,nh,this); 
+				g.drawImage(aiImg, 1100,25,nw,nh,this); 
 			}
 
 		} 
 
 		@Override 
 		public Dimension getPreferredSize(){ 
-			return new Dimension(1000,250); 
+			return new Dimension(1200,250); 
 		}
 	}; 
 	    frame.add(c);
