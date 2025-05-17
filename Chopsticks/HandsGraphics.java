@@ -29,6 +29,7 @@ public class HandsGraphics{
         }
     } 
 
+    //when a valid drag is done, update the photos and hand objects 
 
 	public HandsGraphics(){ 
 	} 
