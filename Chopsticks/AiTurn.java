@@ -304,6 +304,7 @@ public class AiTurn implements MinimaxTree<OurGameState> {
 		}
 
 		return optimalMove;
+
 	}
 
 	/**

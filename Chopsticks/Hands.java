@@ -71,9 +71,7 @@ public class Hands {
 	 * @param amount integer number of fingers to add to the left hand.
 	 */	
 	public void addLeftHand(int amount) {
-		if (leftFingers < 5) {
-			this.leftFingers += amount;
-		}
+		this.leftFingers += amount;
 
 		if (leftFingers >= 5) {
 			this.leftFingers = 5;
@@ -86,9 +84,7 @@ public class Hands {
 	 * @param amount integer number of fingers to add to the left hand.
 	 */	
 	public void addRightHand(int amount) {
-		if (rightFingers < 5) {
-			this.rightFingers += amount;
-		}
+		this.rightFingers += amount;
 
 		if (rightFingers >= 5) {
 			this.rightFingers = 5;

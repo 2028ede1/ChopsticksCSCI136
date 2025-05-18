@@ -176,6 +176,12 @@ public class GamePiece {
             	int numFingers; 
             	Hands p1,p2; 
 
+
+            	System.out.println("\n--- performMove called ---");
+			    System.out.println("fromPlayer: " + fromPlayer + ", fromHand: " + fromHand);
+			    System.out.println("toPlayer: " + toPlayer + ", toHand: " + toHand);
+
+
             	//initializes the hands based on gamestate 
             	if(fromPlayer.equals("player")){ 
             		p1 = gameState.getPlayerHands(); 
@@ -190,10 +196,13 @@ public class GamePiece {
             		p2 = gameState.getAiHands(); 
             	}
             	
+            	System.out.println("Before move: p1 = " + p1 + ", p2 = " + p2);
+    			System.out.println("AI Hands state: " + gameState.getAiHands());
 
             	//Handles bumps 
             	if(toPlayer.equals(fromPlayer) && toHand.equals("bump") ){ 
             		if(p1.canBump()){ 
+            			System.out.println("Performing bump...");
             			p1.bump(); 
             			endTurn(fromPlayer);
             		}
@@ -202,6 +211,7 @@ public class GamePiece {
 
             	//Prevent moves if the hands are out
             	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut()) ){
+            		System.out.println("Illegal move: trying to move from a hand that's out.");
             		return; 
             	}	
 
@@ -213,14 +223,19 @@ public class GamePiece {
             	} 
 
 
-            	if(toHand.equals("left")){ 
+            	if(toHand.equals("left") && p2.getLeftFingers() < 5){ 
             		p2.addLeftHand(numFingers); 
-            		System.out.println(numFingers); 
-            	}else{ 
+            		System.out.println("Added to left: +" + numFingers);
+            	}
+            	else if (toHand.equals("right") && p2.getRightFingers() < 5){ 
             		p2.addRightHand(numFingers); 
-            		System.out.println(numFingers); 
+            		System.out.println("Added to right: +" + numFingers);
             	}
 
+            	else {
+            		System.out.println("Move blocked: target hand already has 5 fingers");
+            	}
+            	
             	endTurn(fromPlayer); 
             	
             }
