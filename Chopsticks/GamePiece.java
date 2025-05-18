@@ -87,7 +87,8 @@ public class GamePiece {
 	    	GamePiece dragging = null; 
 	    	String draggingHand = ""; 
 	    	BufferedImage vs;
-	    	BufferedImage aiImg; 
+	    	BufferedImage aiImg;
+	    	BufferedImage youImg;  
 
 
 	    	int offsetX = 0; 
@@ -97,6 +98,8 @@ public class GamePiece {
 	    		updateImages(); 
 	    		vs = ImageIO.read(GamePiece.class.getResource("/sprites/VS.png"));
 	    		aiImg = ImageIO.read(GamePiece.class.getResource("/sprites/AI.png")); 
+	    		youImg = ImageIO.read(GamePiece.class.getResource("/sprites/You.png"));
+
 	    		} catch (IOException e) { 
 	    			e.printStackTrace(); 
 	    		}
@@ -126,11 +129,11 @@ public class GamePiece {
                 	int my = e.getY();
                 	if(dragging != null && dragging ==piece){ 
 
-                		if(piece2.leftContains(mx,my)){ 
+                		if(piece2.leftContains(mx,my) && piece2.hands.getLeftFingers() < 5){ 
                 			performMove("player",draggingHand, "ai", "left");
-                		}else if (piece2.rightContains(mx,my)){ 
+                		}else if (piece2.rightContains(mx,my) && piece2.hands.getRightFingers() < 5){ 
                 			performMove("player",draggingHand, "ai", "right");
-                		} else if (piece.leftContains(mx,my) || piece.rightContains(mx,my)){ 
+                		} else if ((piece.leftContains(mx,my) && draggingHand == "right") || (piece.rightContains(mx,my) && draggingHand == "left")){ 
                 			performMove("player",draggingHand,"player","bump"); 
                 		}
 
@@ -175,7 +178,6 @@ public class GamePiece {
             public void performMove(String fromPlayer, String fromHand, String toPlayer, String toHand){ 
             	int numFingers; 
             	Hands p1,p2; 
-
 
             	System.out.println("\n--- performMove called ---");
 			    System.out.println("fromPlayer: " + fromPlayer + ", fromHand: " + fromHand);
@@ -225,17 +227,13 @@ public class GamePiece {
 
             	if(toHand.equals("left") && p2.getLeftFingers() < 5){ 
             		p2.addLeftHand(numFingers); 
-            		System.out.println("Added to left: +" + numFingers);
+            		System.out.println("AI now has: " + p2.getLeftFingers());
             	}
             	else if (toHand.equals("right") && p2.getRightFingers() < 5){ 
             		p2.addRightHand(numFingers); 
-            		System.out.println("Added to right: +" + numFingers);
+            		System.out.println(numFingers); 
             	}
 
-            	else {
-            		System.out.println("Move blocked: target hand already has 5 fingers");
-            	}
-            	
             	endTurn(fromPlayer); 
             	
             }
@@ -290,8 +288,8 @@ public class GamePiece {
         		// EMMANUEL: ALL I DID HERE WAS CHANGE to properly use getAiHands instead of getPlayerHands
         		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getAiHands().getLeftFingers() +".png"));
         		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getAiHands().getRightFingers() +".png"));
-        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 400, 0); 
-        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 650, 0, 950, 0); 
+        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 300, 0); 
+        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 750, 0, 950, 0); 
 
         	} catch (IOException e) { 
         		e.printStackTrace(); 
@@ -314,6 +312,11 @@ public class GamePiece {
 				int nw = aiImg.getWidth()/4;
 				int nh = aiImg.getHeight()/4;
 				g.drawImage(aiImg, 1100,25,nw,nh,this); 
+			}
+			if(youImg != null){ 
+				int nw = aiImg.getWidth()/4;
+				int nh = aiImg.getHeight()/4;
+				g.drawImage(youImg, 50,25,nw,nh,this); 
 			}
 
 		} 
