@@ -80,7 +80,7 @@ public class GamePiece {
 
 	    JComponent c = new JComponent(){	   
 	     	OurGameState gameState = new OurGameState(new Hands(1,1), new Hands(1,1), false); 
-	    	AiTurn aiLogic = new AiTurn(); 
+	    	AiDecisionMaker aiLogic = new AiDecisionMaker(); 
 
 	    	GamePiece piece; 
 	    	GamePiece piece2; 
@@ -249,7 +249,7 @@ public class GamePiece {
             		gameState.setIsAiPlayerTurn(true); 
             		updateImages(); 
             		repaint();
-            		SwingUtilities.invokeLater(() -> updateAiTurn()); //Built in Swing method to call ai turn after the player move is performed using lambda expression
+            		SwingUtilities.invokeLater(() -> updateAiDecisionMaker()); //Built in Swing method to call ai turn after the player move is performed using lambda expression
             	}else{ 
             		gameState.setIsAiPlayerTurn(false); 
             		updateImages(); 
@@ -259,7 +259,7 @@ public class GamePiece {
             }
 
          	//This helper method updates the gamestate based on the ai's turn
-	        public void updateAiTurn(){ 
+	        public void updateAiDecisionMaker(){ 
 	        	if(!gameState.getIsAiPlayerTurn()) return; 
 	        	OurGameState newState = aiLogic.findBestMove(gameState); 
 	        	gameState = newState; 
@@ -323,7 +323,7 @@ public class GamePiece {
 
 		@Override 
 		public Dimension getPreferredSize(){ 
-			return new Dimension(1200,250); 
+			return new Dimension(1920,1080); 
 		}
 	}; 
 	    frame.add(c);
