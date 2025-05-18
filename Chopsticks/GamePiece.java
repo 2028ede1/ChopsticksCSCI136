@@ -251,6 +251,10 @@ public class GamePiece {
 	        	OurGameState newState = aiLogic.findBestMove(gameState); 
 	        	gameState = newState; 
 
+	        	// EMMANUEL: ADDED THESE TWO LINES for properly reflecting state after ai wins
+	        	updateImages();
+	        	repaint();
+
 				if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
             		gameState.printWinner(); 
             		return; 
@@ -267,8 +271,10 @@ public class GamePiece {
         	try { 
         		BufferedImage pLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
         		BufferedImage pRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
-        		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
-        		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
+
+        		// EMMANUEL: ALL I DID HERE WAS CHANGE to properly use getAiHands instead of getPlayerHands
+        		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getAiHands().getLeftFingers() +".png"));
+        		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getAiHands().getRightFingers() +".png"));
         		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 400, 0); 
         		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 650, 0, 950, 0); 
 
