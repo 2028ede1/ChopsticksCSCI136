@@ -203,11 +203,6 @@ public class ChopsticksGame {
             	int numFingers; 
             	Hands p1,p2; 
 
-            	System.out.println("\n--- performMove called ---");
-			    System.out.println("fromPlayer: " + fromPlayer + ", fromHand: " + fromHand);
-			    System.out.println("toPlayer: " + toPlayer + ", toHand: " + toHand);
-
-
             	//initializes the hands based on gamestate 
             	if(fromPlayer.equals("player")){ 
             		p1 = gameState.getPlayerHands(); 
@@ -222,24 +217,30 @@ public class ChopsticksGame {
             		p2 = gameState.getAiHands(); 
             	}
             	
-            	System.out.println("Before move: p1 = " + p1 + ", p2 = " + p2);
-    			System.out.println("AI Hands state: " + gameState.getAiHands());
+            	System.out.println("--- PERFORM MOVE CALLED ---");
 
             	//Handles bumps 
             	if(toPlayer.equals(fromPlayer) && toHand.equals("bump") ){ 
             		if(p1.canBump()){ 
-            			System.out.println("Performing bump...");
             			p1.bump(); 
             			endTurn(fromPlayer);
+            			System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + " OUT HAND TO BUMP.");
+            			System.out.println("PERFORMING BUMP............PLAYER NOW HAS " + p1.getLeftFingers() + " FINGERS ON BOTH HANDS");
+            			System.out.println("....AI NOW MAKES A MOVE....");
+		            	System.out.println("....IS IS NOW YOUR TURN....");
+		            	System.out.println("----------------------------------------------------------------------");
             		}
             		return; 
             	}
 
             	//Prevent moves if the hands are out
             	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut()) ){
-            		System.out.println("Illegal move: trying to move from a hand that's out.");
+            		System.out.println("ILLEGAL MOVE: CANNOT ADD FINGERS FROM A HAND THAT IS ALREADY OUT.........");
             		return; 
             	}	
+
+            	System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + toPlayer + " "+ toHand + " HAND.");
+            	System.out.println("BEFORE THE MOVE AI HAS " + p2.getLeftFingers() + " LEFT FINGER(s) AND " + p2.getRightFingers() + " RIGHT FINGER(s).");
 
             	//initializes the current finger counter
             	if(fromHand.equals("left")){ 
@@ -251,15 +252,17 @@ public class ChopsticksGame {
 
             	if(toHand.equals("left") && p2.getLeftFingers() < 5){ 
             		p2.addLeftHand(numFingers); 
-            		System.out.println("AI now has: " + p2.getLeftFingers());
+            		System.out.println("AFTER MOVE AI NOW HAS " + p2.getLeftFingers() + " LEFT FINGERS.");
             	}
             	else if (toHand.equals("right") && p2.getRightFingers() < 5){ 
             		p2.addRightHand(numFingers); 
-            		System.out.println(numFingers); 
+            		System.out.println("AFTER MOVE AI NOW HAS " + p2.getRightFingers() + " RIGHT FINGERS(s).");
             	}
 
             	endTurn(fromPlayer); 
-            	
+            	System.out.println("....AI NOW MAKES A MOVE....");
+            	System.out.println("....IS IS NOW YOUR TURN....");
+            	System.out.println("----------------------------------------------------------------------");
             }
             //Helper method for determining the game ending conditions 
             public void endTurn(String fromPlayer){ 
