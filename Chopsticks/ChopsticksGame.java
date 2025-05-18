@@ -7,74 +7,98 @@ import java.io.IOException;
 import javax.imageio.ImageIO; 
 import java.awt.event.*;
 
-public class GamePiece { 
-	BufferedImage leftHand, rightHand; //The left and right hand images 
-	Hands hands; //hand object that stores the values of a pair of hands
-	int leftx, lefty, rightx, righty, origLeftx, origLefty, origRightx, origRighty; //the (x,y) positions of both hands
-	private static double scale = 0.25; //scale factor for images 
+public class ChopsticksGame { 
 
-	public GamePiece(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
-		this.leftHand = leftHand; 
-		this.rightHand = rightHand; 
+	//The left and right hand images 
+	BufferedImage leftHandImage;
+	BufferedImage rightHandImage; 
 
-		this.leftx = leftx; 
-		this.lefty = lefty;
-		this.rightx = rightx; 
-		this.righty = righty; 
+	//hand object that stores the values of a pair of hands
+	Hands hands; 
+
+	//the (x,y) positions of both hands
+	int leftHandXCord;
+	int leftHandYCord; 
+	int rightHandXCord;
+	int rightHandYCord;
+
+	// the (x,y) positions of both hands to reset to
+	int ogLeftHandXCord;
+	int ogLeftHandYCord;
+	int ogRightHandXCord;
+	int ogRightHandYCord; 
+
+	//scale factor for images 
+	private static double scale = 0.25;
+
+	public ChopsticksGame(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
+		this.leftHandImage = leftHand; 
+		this.rightHandImage = rightHand; 
+
+		this.leftHandXCord = leftx;
+		this.leftHandYCord = lefty;
+		this.rightHandXCord = rightx; 
+		this.rightHandYCord = righty; 
 
 		this.hands = hands; 
+
 		//original x,y positions
-		this.origLeftx = leftx; 
-		this.origLefty = lefty;
-		this.origRightx = rightx; 
-		this.origRighty = righty;
+		this.ogLeftHandXCord = leftHandXCord; 
+		this.ogLeftHandYCord = leftHandYCord;
+		this.ogRightHandXCord = rightHandXCord; 
+		this.ogRightHandYCord = rightHandYCord;
 
 	}
+
 	//Draws the images 
 	public void draw(Graphics g, JComponent c){ 
-		g.drawImage(leftHand,leftx,lefty, getLeftWidth(), getLeftHeight(),c); 
-		g.drawImage(rightHand,rightx,righty, getRightWidth(), getRightHeight(),c); 
+		g.drawImage(leftHandImage,leftHandXCord,leftHandYCord, getLeftHandImageWidth(), getLeftHandImageHeight(),c); 
+		g.drawImage(rightHandImage,rightHandXCord,rightHandYCord, getRightHandImageWidth(), getRightHandImageHeight(),c); 
 	}
 
 	//These methods determine if the mouse click is within the bounds of the left and right hand.
-	public boolean leftContains(int mx, int my){ 
-		return mx >= leftx && mx <= leftx+getLeftWidth() && my >= lefty && my <= lefty+getLeftHeight(); 
+	public boolean leftHandContains(int mouseX, int mouseY){ 
+		return mouseX >= leftHandXCord && mouseX <= leftHandXCord+getLeftHandImageWidth() && mouseY >= leftHandYCord && mouseY <= leftHandYCord+getLeftHandImageHeight(); 
 	}
-	public boolean rightContains(int mx, int my){ 
-		return mx >= rightx && mx <= rightx+getRightWidth() && my >= righty && my <= righty+getRightHeight(); 
+	public boolean rightHandContains(int mouseX, int mouseY){ 
+		return mouseX >= rightHandXCord && mouseX <= rightHandXCord+getRightHandImageWidth() && mouseY >= rightHandYCord && mouseY <= rightHandYCord+getRightHandImageHeight(); 
 	}
 
 	//These methods reset the positions of the two hand images
-	public void resetLeft(){ 
-		this.leftx = origLeftx; 
-		this.lefty = origLefty; 
+	public void resetLeftHand(){ 
+		this.leftHandXCord = ogLeftHandXCord; 
+		this.leftHandYCord = ogLeftHandYCord; 
 	}
-	public void resetRight(){ 
-		this.rightx = origRightx; 
-		this.righty = origRighty; 
+	public void resetRightHand(){ 
+		this.rightHandXCord = ogRightHandXCord; 
+		this.rightHandYCord = ogRightHandYCord; 
 	}
 
 	//These methods scale and return the heights and widths of the two hand images
-	public int getLeftWidth(){ 
-		return (int)(leftHand.getWidth() * scale); 
+	public int getLeftHandImageWidth(){ 
+		return (int)(leftHandImage.getWidth() * scale); 
 	}
 
-	public int getLeftHeight(){ 
-		return (int)(leftHand.getHeight() * scale); 
+	public int getLeftHandImageHeight(){ 
+		return (int)(leftHandImage.getHeight() * scale); 
 	}
 
 
-	public int getRightWidth(){ 
-		return (int)(rightHand.getWidth() * scale); 
+	public int getRightHandImageWidth(){ 
+		return (int)(rightHandImage.getWidth() * scale); 
 	}
 
-	public int getRightHeight(){ 
-		return (int)(rightHand.getHeight() * scale); 
+	public int getRightHandImageHeight(){ 
+		return (int)(rightHandImage.getHeight() * scale); 
 	}
 
+	public void initializeGame() {
+
+	}
 
 	public static void main(String[] args){
 		//(TEST CODE)
+
  		JFrame frame = new JFrame("Chopsticks");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -82,9 +106,9 @@ public class GamePiece {
 	     	OurGameState gameState = new OurGameState(new Hands(1,1), new Hands(1,1), false); 
 	    	AiDecisionMaker aiLogic = new AiDecisionMaker(); 
 
-	    	GamePiece piece; 
-	    	GamePiece piece2; 
-	    	GamePiece dragging = null; 
+	    	ChopsticksGame piece; 
+	    	ChopsticksGame piece2; 
+	    	ChopsticksGame dragging = null; 
 	    	String draggingHand = ""; 
 	    	BufferedImage vs;
 	    	BufferedImage aiImg;
@@ -96,9 +120,9 @@ public class GamePiece {
 	    { 
 	    	try {  
 	    		updateImages(); 
-	    		vs = ImageIO.read(GamePiece.class.getResource("/sprites/VS.png"));
-	    		aiImg = ImageIO.read(GamePiece.class.getResource("/sprites/AI.png")); 
-	    		youImg = ImageIO.read(GamePiece.class.getResource("/sprites/You.png"));
+	    		vs = ImageIO.read(ChopsticksGame.class.getResource("/sprites/VS.png"));
+	    		aiImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/AI.png")); 
+	    		youImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/You.png"));
 
 	    		} catch (IOException e) { 
 	    			e.printStackTrace(); 
@@ -107,41 +131,41 @@ public class GamePiece {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent e) {
-                	int mx = e.getX(); 
-                	int my = e.getY(); 
+                	int mouseX = e.getX(); 
+                	int mouseY = e.getY(); 
 
-                	if(piece!=null && piece.leftContains(mx,my)){ 
+                	if(piece!=null && piece.leftHandContains(mouseX,mouseY)){ 
                 		dragging = piece; 
                 		draggingHand = "left"; 
-                		offsetX = mx-piece.leftx; 
-                		offsetY = my-piece.lefty; 
-                	}else if(piece!=null && piece.rightContains(mx,my)){ 
+                		offsetX = mouseX-piece.leftHandXCord; 
+                		offsetY = mouseY-piece.leftHandYCord; 
+                	}else if(piece!=null && piece.rightHandContains(mouseX,mouseY)){ 
                 		dragging = piece; 
                 		draggingHand = "right"; 
-                		offsetX = mx-piece.rightx; 
-                		offsetY = my-piece.righty; 
+                		offsetX = mouseX-piece.rightHandXCord; 
+                		offsetY = mouseY-piece.rightHandYCord; 
                 	}
                 } 
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                	int mx = e.getX(); 
-                	int my = e.getY();
+                	int mouseX = e.getX(); 
+                	int mouseY = e.getY();
                 	if(dragging != null && dragging ==piece){ 
 
-                		if(piece2.leftContains(mx,my) && piece2.hands.getLeftFingers() < 5){ 
+                		if(piece2.leftHandContains(mouseX,mouseY) && piece2.hands.getLeftFingers() < 5){ 
                 			performMove("player",draggingHand, "ai", "left");
-                		}else if (piece2.rightContains(mx,my) && piece2.hands.getRightFingers() < 5){ 
+                		}else if (piece2.rightHandContains(mouseX,mouseY) && piece2.hands.getRightFingers() < 5){ 
                 			performMove("player",draggingHand, "ai", "right");
-                		} else if ((piece.leftContains(mx,my) && draggingHand == "right") || (piece.rightContains(mx,my) && draggingHand == "left")){ 
+                		} else if ((piece.leftHandContains(mouseX,mouseY) && draggingHand == "right") || (piece.rightHandContains(mouseX,mouseY) && draggingHand == "left")){ 
                 			performMove("player",draggingHand,"player","bump"); 
                 		}
 
             			if(draggingHand.equals("left")){ 
-            				dragging.resetLeft(); 
+            				dragging.resetLeftHand(); 
             			} 
             			if(draggingHand.equals("right")){ 
-                        	dragging.resetRight(); 
+                        	dragging.resetRightHand(); 
             			}
             			repaint(); 
                 	}
@@ -154,18 +178,18 @@ public class GamePiece {
             	@Override
             	public void mouseDragged(MouseEvent e) {
             		if(dragging != null){ 
-            			int mx = e.getX(); 
-            			int my = e.getY(); 
-            			int dx = mx - offsetX; 
-            			int dy = my - offsetY; 
+            			int mouseX = e.getX(); 
+            			int mouseY = e.getY(); 
+            			int dx = mouseX - offsetX; 
+            			int dy = mouseY - offsetY; 
 
             			if(draggingHand.equals("left")){ 
-                        	dragging.leftx = dx;
-                        	dragging.lefty = dy;
+                        	dragging.leftHandXCord = dx;
+                        	dragging.leftHandYCord = dy;
             			}
             			if(draggingHand.equals("right")){ 
-                        	dragging.rightx = dx;
-                        	dragging.righty = dy;
+                        	dragging.rightHandXCord = dx;
+                        	dragging.rightHandYCord = dy;
             			}
 
             			repaint(); 
@@ -288,8 +312,8 @@ public class GamePiece {
         		// EMMANUEL: ALL I DID HERE WAS CHANGE to properly use getAiHands instead of getPlayerHands
         		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getAiHands().getLeftFingers() +".png"));
         		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getAiHands().getRightFingers() +".png"));
-        		piece = new GamePiece(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 300, 0); 
-        		piece2 = new GamePiece(aiLeft, aiRight, gameState.getAiHands(), 750, 0, 950, 0); 
+        		piece = new ChopsticksGame(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 300, 0); 
+        		piece2 = new ChopsticksGame(aiLeft, aiRight, gameState.getAiHands(), 750, 0, 950, 0); 
 
         	} catch (IOException e) { 
         		e.printStackTrace(); 
