@@ -11,3 +11,4 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
 2. navigate into the ChopsticksCSCI136 directory and type
    * javac -d bin Chopsticks/*.java (to compile)
    * java -cp bin Chopsticks.Chopsticks (to run the game)
+   * ![Image](https://github.com/user-attachments/assets/79180656-2ed3-4d36-8f0a-085481f70067)
