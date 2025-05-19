@@ -9,6 +9,5 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
 
 1. git clone (ssh link)
 2. navigate into the ChopsticksCSCI136 directory and type
-   
-javac -d bin Chopsticks/*.java (to compile)
-java -cp bin Chopsticks.Chopsticks (to run the game)
+   * javac -d bin Chopsticks/*.java (to compile)
+   * java -cp bin Chopsticks.Chopsticks (to run the game)
