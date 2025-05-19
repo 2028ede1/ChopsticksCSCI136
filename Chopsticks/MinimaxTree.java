@@ -68,7 +68,7 @@ public interface MinimaxTree<Gamestate>{
       * to the current state assuming both players play optimally.
    */
    
-   public int minimax(Gamestate currentState, int depth, int maxDepth, boolean isMaxizingPlayer);
+   public int minimax(Gamestate currentState, int depth, int maxDepth, boolean isMaximizingPlayer);
 
    /**
     * Finds the best move for the maximizer (AI) by calling minimax method on each of the possible moves.
