@@ -7,7 +7,7 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
 
 # To Use
 
-1. git clone (ssh link)
+1. git clone
 2. navigate into the ChopsticksCSCI136 directory and type
    * javac -d bin Chopsticks/*.java (to compile)
    * java -cp bin Chopsticks.Chopsticks (to run the game)
@@ -24,6 +24,11 @@ https://github.com/user-attachments/assets/228ad58f-8895-46b2-8a44-b3b1a0d62f95
 ![Image](https://github.com/user-attachments/assets/0e84f9d2-eeed-4cdc-8691-8adb5e3da1c5)
 ![Image](https://github.com/user-attachments/assets/91922ec5-1997-4ef3-b571-395258e50543)
 # ADT - MinimaxTree
+This ADT is applicable to any turn-based adversarial game, where the player and the opponent have polar opposite goals (you want to win, the opponent wants you to lose). The Minimax algorithm, at a high level, is meant to simulate rational human thinking by examining all possible moves, predicting the consequences of performing each possible move if both the human and the AI play as optimally as possible several turns ahead, and choosing the option that leads to the most favorable outcome for the AI in the worst-case scenario, where the simulated human player plays optimally to make the AI lose.
+
+The methods included in the ADT are: isTerminalState(Gamestate currentState), evaluateState(Gamestate currentState), getAvailableMoves(Gamestate currentState), minimax(Gamestate currentState, int depth, int maxDepth, boolean isMaximizingPlayer), and findBestMove(Gamestate currentState). The Gamestate object represents a game state that you define based on the specific game being implemented. It should encapsulate all the information necessary to determine whose turn it is, what moves are available, whether the game is over, how to apply a move, and, according to the game’s rules, which player has an advantage or disadvantage in the current state.
+
+Essentially, after the human makes a move, the AI generates all legal moves (with getAvailableMoves) and simulates several alternating turns ahead (with minimax)—its own, the human’s, and so on—recursively building a game tree of possible outcomes. Each path of turn choices is explored until the game ends (using isTerminalState) or a depth limit is reached. At the leaf nodes, the AI assigns a heuristic score based on how favorable each state is (with evaluateState), with positive values favoring the AI and negative ones favoring the opponent. These scores are then tracked recursively back up the tree to the root node, allowing the AI to determine the guaranteed consequence of each move if both players play optimally (with minimax). The AI then selects the move that leads to the highest score, ensuring the guaranteed best possible outcome (with findBestMove).
 
 # Implementation details
 
