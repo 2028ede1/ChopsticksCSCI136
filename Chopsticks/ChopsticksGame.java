@@ -7,6 +7,12 @@ import java.io.IOException;
 import javax.imageio.ImageIO; 
 import java.awt.event.*;
 
+/**
+ * Manages visual/interactive components of the Chopsticks game. It displays
+ * and updates player and AI hand images to reflect the current finger counts of the 
+ * current game state, handles drag and drop interactions and executes game logic
+ * for adding fingers to hands as well as bumping.
+ */
 public class ChopsticksGame { 
 
 	//The left and right hand images 
@@ -22,15 +28,16 @@ public class ChopsticksGame {
 	int rightHandXCord;
 	int rightHandYCord;
 
-	// the (x,y) positions of both hands to reset to
+	// original coordinates for resetting hand positions after drag and drop
 	int ogLeftHandXCord;
 	int ogLeftHandYCord;
 	int ogRightHandXCord;
 	int ogRightHandYCord; 
 
-	//scale factor for images 
+	// scale factor for imamge sizing
 	private static double scale = 0.50;
 
+	// constructor
 	public ChopsticksGame(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
 		this.leftHandImage = leftHand; 
 		this.rightHandImage = rightHand; 
@@ -50,13 +57,20 @@ public class ChopsticksGame {
 
 	}
 
-	//Draws the images 
+	/**
+	 * Method for drawing images onto the GUI window
+	 */
 	public void draw(Graphics g, JComponent c){ 
 		g.drawImage(leftHandImage,leftHandXCord,leftHandYCord, getLeftHandImageWidth(), getLeftHandImageHeight(),c); 
 		g.drawImage(rightHandImage,rightHandXCord,rightHandYCord, getRightHandImageWidth(), getRightHandImageHeight(),c); 
 	}
 
-	//These methods determine if the mouse click is within the bounds of the left and right hand.
+	/**
+	 * Mouse boundary detection for both hands.
+	 * @param mouseX x position of the mouse
+	 * @param mouseY y position of the mouse
+	 * @return boolean of whether or not the coordinates are within the boundary boxes for the hadns
+	 */
 	public boolean leftHandContains(int mouseX, int mouseY){ 
 		return mouseX >= leftHandXCord && mouseX <= leftHandXCord+getLeftHandImageWidth() && mouseY >= leftHandYCord && mouseY <= leftHandYCord+getLeftHandImageHeight(); 
 	}
@@ -64,7 +78,9 @@ public class ChopsticksGame {
 		return mouseX >= rightHandXCord && mouseX <= rightHandXCord+getRightHandImageWidth() && mouseY >= rightHandYCord && mouseY <= rightHandYCord+getRightHandImageHeight(); 
 	}
 
-	//These methods reset the positions of the two hand images
+	/**
+	 * These two methods reset the positions of the two hand images
+	 */
 	public void resetLeftHand(){ 
 		this.leftHandXCord = ogLeftHandXCord; 
 		this.leftHandYCord = ogLeftHandYCord; 
@@ -74,7 +90,10 @@ public class ChopsticksGame {
 		this.rightHandYCord = ogRightHandYCord; 
 	}
 
-	//These methods scale and return the heights and widths of the two hand images
+	/**
+	 * These four methods scale and return the heights and widths of the two hand image.
+	 * @return integer of the width/height for the corresponding hand image loaded
+	 */
 	public int getLeftHandImageWidth(){ 
 		return (int)(leftHandImage.getWidth() * scale); 
 	}
@@ -92,116 +111,134 @@ public class ChopsticksGame {
 		return (int)(rightHandImage.getHeight() * scale); 
 	}
 
-	public void initializeGame() {
-
-	}
 
 	public static void main(String[] args){
 
  		JFrame frame = new JFrame("Chopsticks");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	    JComponent c = new JComponent(){	   
-	    	//GameState Related Instances
+	    // Handles rendering of images and drag and drop interactions for the game
+	    JComponent c = new JComponent(){
+
+	    	// The gamestate object used for the game logic
 	     	OurGameState gameState = new OurGameState(new Hands(1,1), new Hands(1,1), false); 
-	    	AiDecisionMaker aiLogic = new AiDecisionMaker(); 
 
-	    	//Player and AI game objects, respectively
-	    	ChopsticksGame piece; 
-	    	ChopsticksGame piece2; 
+	     	// Used for finding the most optimal move resulting game state
+	    	AiDecisionMaker aiDecision = new AiDecisionMaker(); 
 
-	    	//the game object being dragged
-	    	ChopsticksGame dragging = null; 
-	    	String draggingHand = ""; 
+	    	// Player and AI game visuals (each holding two hand images and their positions)
+	    	ChopsticksGame playerHandsUI; 
+	    	ChopsticksGame aiHandsUI; 
 
-	    	//GUI images/text 
+	    	// The currently dragged hand object and which hand is being dragged
+	    	ChopsticksGame draggedPiece = null; 
+	    	String draggingHandSide = ""; 
+
+	    	// Other UI image resources
 	    	BufferedImage vs;
-	    	BufferedImage aiImg;
-	    	BufferedImage youImg;  
+	    	BufferedImage aiLabelImg;
+	    	BufferedImage youLabelImg;  
 	    	String winnerTxt = null; 
 
-	    	//The offset from the original position of the dragged game object
+	    	// Offset between mouse position and hand corner when dragging an image
 	    	int offsetX = 0; 
 	    	int offsetY = 0; 
-	    { 
+	    	// For loading images and mouse listeners
+	    	{ 
+
 	    	try {  
 	    		updateImages(); 
 	    		vs = ImageIO.read(ChopsticksGame.class.getResource("/sprites/VS.png"));
-	    		aiImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/AI.png")); 
-	    		youImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/You.png"));
+	    		aiLabelImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/AI.png")); 
+	    		youLabelImg = ImageIO.read(ChopsticksGame.class.getResource("/sprites/You.png"));
 
-	    		} catch (IOException e) { 
+	    		} 
+	    		catch (IOException e) { 
 	    			e.printStackTrace(); 
 	    		}
 
             addMouseListener(new MouseAdapter() {
                 @Override
+
+                /**
+                 * Begins image draggedPiece if the mouse position is on either player
+                 * hands.
+                 */
                 public void mousePressed(MouseEvent e) {
                 	int mouseX = e.getX(); 
                 	int mouseY = e.getY(); 
-                	//Initializes the dragging piece object based on where the mouse was pressed. 
-                	if(piece!=null && piece.leftHandContains(mouseX,mouseY)){ 
-                		dragging = piece; 
-                		draggingHand = "left"; 
-                		offsetX = mouseX-piece.leftHandXCord; 
-                		offsetY = mouseY-piece.leftHandYCord; 
-                	}else if(piece!=null && piece.rightHandContains(mouseX,mouseY)){ 
-                		dragging = piece; 
-                		draggingHand = "right"; 
-                		offsetX = mouseX-piece.rightHandXCord; 
-                		offsetY = mouseY-piece.rightHandYCord; 
+
+                	//Initializes the draggedPiece playerHandsUI object based on where the mouse was pressed. 
+                	if(playerHandsUI!=null && playerHandsUI.leftHandContains(mouseX,mouseY)){ 
+                		draggedPiece = playerHandsUI; 
+                		draggingHandSide = "left"; 
+                		offsetX = mouseX-playerHandsUI.leftHandXCord; 
+                		offsetY = mouseY-playerHandsUI.leftHandYCord; 
+                	}
+                	else if(playerHandsUI!=null && playerHandsUI.rightHandContains(mouseX,mouseY)){ 
+                		draggedPiece = playerHandsUI; 
+                		draggingHandSide = "right"; 
+                		offsetX = mouseX-playerHandsUI.rightHandXCord; 
+                		offsetY = mouseY-playerHandsUI.rightHandYCord; 
                 	}
                 } 
 
                 @Override
+
+                /**
+                 * Attempts to perform move based on where the player dropped the image.
+                 */ 
                 public void mouseReleased(MouseEvent e) {
                 	int mouseX = e.getX(); 
                 	int mouseY = e.getY();
-                	if(dragging != null && dragging == piece){ 
+                	if(draggedPiece != null && draggedPiece == playerHandsUI){ 
 
                 		if (!gameState.getPlayerHands().bothHandsOut() && !gameState.getAiHands().bothHandsOut()) {
 
-                			if(piece2.leftHandContains(mouseX,mouseY) && piece2.hands.getLeftFingers() < 5){ 
-                			performMove("player",draggingHand, "ai", "left");
+                			if(aiHandsUI.leftHandContains(mouseX,mouseY) && aiHandsUI.hands.getLeftFingers() < 5){ 
+                			performMove("player",draggingHandSide, "ai", "left");
 	                		}
-	                		else if (piece2.rightHandContains(mouseX,mouseY) && piece2.hands.getRightFingers() < 5){ 
-	                			performMove("player",draggingHand, "ai", "right");
+	                		else if (aiHandsUI.rightHandContains(mouseX,mouseY) && aiHandsUI.hands.getRightFingers() < 5){ 
+	                			performMove("player",draggingHandSide, "ai", "right");
 	                		} 
 
-	                		else if ((piece.leftHandContains(mouseX,mouseY) && draggingHand == "right") || (piece.rightHandContains(mouseX,mouseY) && draggingHand == "left")){ 
-	                			performMove("player",draggingHand,"player","bump"); 
+	                		else if ((playerHandsUI.leftHandContains(mouseX,mouseY) && draggingHandSide == "right") || (playerHandsUI.rightHandContains(mouseX,mouseY) && draggingHandSide == "left")){ 
+	                			performMove("player",draggingHandSide,"player","bump"); 
 	                		}
                 		}
 
-            			if(draggingHand.equals("left")){ 
-            				dragging.resetLeftHand(); 
+
+                		 // Reset dragged hand's position after the image is dropped
+            			if(draggingHandSide.equals("left")){ 
+            				draggedPiece.resetLeftHand(); 
             			} 
-            			if(draggingHand.equals("right")){ 
-                        	dragging.resetRightHand(); 
+            			if(draggingHandSide.equals("right")){ 
+                        	draggedPiece.resetRightHand(); 
             			}
             			repaint(); 
                 	}
-                    dragging = null;
-                    draggingHand = ""; 
+                    draggedPiece = null;
+                    draggingHandSide = ""; 
                 }
             });
 
+            // Update hand position while draggedPiece
             addMouseMotionListener(new MouseMotionAdapter(){ 
             	@Override
             	public void mouseDragged(MouseEvent e) {
-            		if(dragging != null){ 
+            		if(draggedPiece != null){ 
             			int mouseX = e.getX(); 
             			int mouseY = e.getY(); 
             			int dx = mouseX - offsetX; 
             			int dy = mouseY - offsetY; 
 
-            			if(draggingHand.equals("left")){ 
-                        	dragging.leftHandXCord = dx;
-                        	dragging.leftHandYCord = dy;
+            			if(draggingHandSide.equals("left")){ 
+                        	draggedPiece.leftHandXCord = dx;
+                        	draggedPiece.leftHandYCord = dy;
             			}
-            			if(draggingHand.equals("right")){ 
-                        	dragging.rightHandXCord = dx;
-                        	dragging.rightHandYCord = dy;
+            			if(draggingHandSide.equals("right")){ 
+                        	draggedPiece.rightHandXCord = dx;
+                        	draggedPiece.rightHandYCord = dy;
             			}
 
             			repaint(); 
@@ -211,6 +248,10 @@ public class ChopsticksGame {
 
             }
 
+            /**
+         	* Handles logic for adding fingers to the Ai's hands or bumping fingers to 
+         	* the other players hand if allowed.
+         	*/
             public void performMove(String fromPlayer, String fromHand, String toPlayer, String toHand){ 
             	int numFingers; 
             	Hands p1,p2; 
@@ -233,7 +274,7 @@ public class ChopsticksGame {
             	
             	System.out.println("--- PERFORM MOVE CALLED ---");
 
-            	//Handles bumps 
+            	// Handles bumps 
             	if(toPlayer.equals(fromPlayer) && toHand.equals("bump") ){ 
             		if(p1.canBump()){ 
             			p1.bump(); 
@@ -241,13 +282,13 @@ public class ChopsticksGame {
             			System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + " OTHER HAND TO BUMP.");
             			System.out.println("PERFORMING BUMP............PLAYER NOW HAS " + p1.getLeftFingers() + " FINGERS ON BOTH HANDS");
             			System.out.println("....AI NOW MAKES A MOVE....");
-		            	System.out.println("....IS IS NOW YOUR TURN....");
+		            	System.out.println("....IT IS NOW YOUR TURN....");
 		            	System.out.println("----------------------------------------------------------------------");
             		}
             		return; 
             	}
 
-            	//Prevent moves if the hands are out
+            	// Prevent moves if the hands are out
             	if ((fromHand.equals("left") && p1.isLeftHandOut()) || (fromHand.equals("right") && p1.isRightHandOut()) ){
             		System.out.println("ILLEGAL MOVE: CANNOT ADD FINGERS FROM A HAND THAT IS ALREADY OUT.........");
             		return; 
@@ -256,14 +297,14 @@ public class ChopsticksGame {
             	System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + toPlayer + " "+ toHand + " HAND.");
             	System.out.println("BEFORE THE MOVE AI HAS " + p2.getLeftFingers() + " LEFT FINGER(s) AND " + p2.getRightFingers() + " RIGHT FINGER(s).");
 
-            	//initializes the current finger counter
+            	// Get finger count from attacking hand
             	if(fromHand.equals("left")){ 
             		numFingers = p1.getLeftFingers(); 
             	}else{ 
             		numFingers = p1.getRightFingers(); 
             	} 
 
-            	//Adds the fingers from the move to the opponent
+            	// Apply finger count to target hand (either the Ai's left or right hand)
             	if(toHand.equals("left") && p2.getLeftFingers() < 5){ 
             		p2.addLeftHand(numFingers); 
             		System.out.println("AFTER MOVE AI NOW HAS " + p2.getLeftFingers() + " LEFT FINGERS.");
@@ -275,12 +316,17 @@ public class ChopsticksGame {
 
             	endTurn(fromPlayer); 
             	System.out.println("....AI NOW MAKES A MOVE....");
-            	System.out.println("....IS IS NOW YOUR TURN....");
+            	System.out.println("....IT IS NOW YOUR TURN....");
             	System.out.println("----------------------------------------------------------------------");
             }
-            //Helper method for determining the game ending conditions 
-            public void endTurn(String fromPlayer){ 
-            	//Conditional for initializing the printing of the win state. 
+            
+
+            /**
+	         * Updates turn logic and checks win conditions
+	         */ 
+            public void endTurn(String fromPlayer){
+
+            	// Print the winner to the screen if game is over
             	if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
             		winnerTxt = gameState.returnWinner();
             		System.out.println(winnerTxt);
@@ -302,7 +348,9 @@ public class ChopsticksGame {
 
             }
 
-         	//This helper method updates the gamestate based on the ai's turn
+         	/**
+	         * Performs the Optimal AI move and updates game state
+	         */
 	        public void updateAiDecisionMaker(){ 
 	        	if(!gameState.getIsAiPlayerTurn()) {
 	        		return;
@@ -315,10 +363,9 @@ public class ChopsticksGame {
             		return; 
             	}
 
-	        	OurGameState newState = aiLogic.findBestMove(gameState); 
+	        	OurGameState newState = aiDecision.findBestMove(gameState); 
 	        	gameState = newState; 
 
-	        	// EMMANUEL: ADDED THESE TWO LINES for properly reflecting state after ai wins
 	        	updateImages();
 	        	repaint();
 
@@ -335,80 +382,99 @@ public class ChopsticksGame {
 	        } 
             	
 
-        //This helper method updates the player and ai images based on the current gamestate
+        /**
+         * Updates player and AI hand images based on current game state
+         */
         public void updateImages(){ 
         	try { 
+
+        		// Load player hand and Ai hand images based on finger counts
         		BufferedImage pLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getPlayerHands().getLeftFingers() +".png"));
         		BufferedImage pRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getPlayerHands().getRightFingers() +".png"));
-
-        		// EMMANUEL: ALL I DID HERE WAS CHANGE to properly use getAiHands instead of getPlayerHands
         		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getAiHands().getLeftFingers() +".png"));
         		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getAiHands().getRightFingers() +".png"));
 
 
-        		// SCALING POSITION RELATIVE TO SCREEN SIZE
+        		// Get dimensions of the panel to determine relative hand positions
 
         		int panelWidth = getPreferredSize().width;
         		int panelHeight = getPreferredSize().height;
 
+        		// Positioning for the Player hands and Ai hands relative to panel dimensions
+
     			int playerHandLeftX = panelWidth - (int)(panelWidth / 1.1);
     			int playerHandLeftY = panelHeight - (int)(panelHeight / 1.2);
-
     			int playerHandRightX = playerHandLeftX + 300;
     			int playerHandRightY = playerHandLeftY;
 
     			int aiHandLeftX = panelWidth - playerHandLeftX - 2 * (int)(pLeft.getWidth() * scale);
     			int aiHandLeftY = playerHandLeftY;
-
     			int aiHandRightX = aiHandLeftX + 300;
     			int aiHandRightY = playerHandLeftY;
 
-        		piece = new ChopsticksGame(pLeft, pRight, gameState.getPlayerHands(), playerHandLeftX, playerHandLeftY, playerHandRightX , playerHandRightY); 
-        		piece2 = new ChopsticksGame(aiLeft, aiRight, gameState.getAiHands(), aiHandLeftX, aiHandLeftY, aiHandRightX, aiHandRightY); 
+    			// Create updated ChopsticksGame components for rendering
+        		playerHandsUI = new ChopsticksGame(pLeft, pRight, gameState.getPlayerHands(), playerHandLeftX, playerHandLeftY, playerHandRightX , playerHandRightY); 
+        		aiHandsUI = new ChopsticksGame(aiLeft, aiRight, gameState.getAiHands(), aiHandLeftX, aiHandLeftY, aiHandRightX, aiHandRightY); 
 
-        	} catch (IOException e) { 
+        	} 
+
+        	catch (IOException e) { 
         		e.printStackTrace(); 
         	}
 
         }
-        //Draws the images on the canvas
+        
+        /**
+         * Main rendering method for drawing the game.
+         * Draws the player and AI hands, overlays the "VS", "You", and "AI" images,
+         * and if a winner is detected, it displays the winner text near the bottom 
+         * of the screen.
+         */
 		@Override 
 		protected void paintComponent(Graphics g){ 
-			super.paintComponent(g); 
-			if(piece != null) piece.draw(g, this); 	
-			if(piece2 != null) piece2.draw(g, this);
 
+			super.paintComponent(g); 
+
+			// Draw player and AI hand sprites
+			if(playerHandsUI != null) {
+				playerHandsUI.draw(g, this); 
+			}	
+			if(aiHandsUI != null) {
+				aiHandsUI.draw(g, this);
+			}
+
+			// Draw "VS" image centered on the screen
 			if(vs != null){ 
 				int nw = vs.getWidth()/2;
 				int nh = vs.getHeight()/2;
 
-				// CENTER THE VS IMAGE AT THE CENTER OF THE SCREEN
 				int vsImgPosX = (int)(this.getPreferredSize().width / 2.25);
 				int vsImgPosY = this.getPreferredSize().height / 3;
 
 				g.drawImage(vs, vsImgPosX, vsImgPosY,nw,nh,this); 
 			}
-			if(aiImg != null){ 
-				int nw = aiImg.getWidth()/2;
-				int nh = aiImg.getHeight()/2;
 
-				// POSITION THE AI TAG RELATIVE TO SCREEN SIZE
+			// Draw "AI" tag in top right corner
+			if(aiLabelImg != null){ 
+				int nw = aiLabelImg.getWidth()/2;
+				int nh = aiLabelImg.getHeight()/2;
 
 				int aiImgPosX = (int)(this.getPreferredSize().width - this.getPreferredSize().width / 3.8);
 				int aiImgPosY = this.getPreferredSize().height / 24;
-				g.drawImage(aiImg, aiImgPosX, aiImgPosY,nw,nh,this); 
+				g.drawImage(aiLabelImg, aiImgPosX, aiImgPosY,nw,nh,this); 
 			}
-			if(youImg != null){ 
-				int nw = aiImg.getWidth()/2;
-				int nh = aiImg.getHeight()/2;
 
-				// POSITION THE YOU TAG RELATIVE TO SCREEN SIZE
+			// Draw "You" tag in top left corner
+			if(youLabelImg != null){ 
+				int nw = aiLabelImg.getWidth()/2;
+				int nh = aiLabelImg.getHeight()/2;
 
 				int youImgPosX = (int)(this.getPreferredSize().width / 4.61);
 				int youImgPosY = this.getPreferredSize().height / 24;
-				g.drawImage(youImg, youImgPosX,youImgPosY,nw,nh,this); 
+				g.drawImage(youLabelImg, youImgPosX,youImgPosY,nw,nh,this); 
 			}
-			//Prints the Winner
+			
+			// Draw winner text if the game is over at the bottom center of the window
 			if(winnerTxt != null){ 
 				g.setColor(Color.BLACK); 
 				g.setFont(new Font ("Serif", Font.BOLD, 100));
@@ -421,11 +487,14 @@ public class ChopsticksGame {
 
 		} 
 
+		/**
+         * The fixed size of the game window.
+         */
 		@Override 
 		public Dimension getPreferredSize(){ 
 			return new Dimension(1920,1080); 
 		}
-	}; 
+	};
 	    frame.add(c);
 	    frame.pack();
 	    frame.setVisible(true);
