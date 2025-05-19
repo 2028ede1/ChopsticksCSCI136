@@ -80,10 +80,10 @@ public class OurGameState {
 	public String returnWinner(){ 
 		String winner = ""; 
 		if (this.playerHands.bothHandsOut()) {
-			winner = "AI HAS WON!!!!";
+			winner = "YOU LOST..";
 		}
 		else if (this.aiHands.bothHandsOut()) {
-			winner = "PLAYER HAS WON!!!!";
+			winner = "YOU WON!!";
 		}
 		return winner; 
 	}

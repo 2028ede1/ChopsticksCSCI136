@@ -157,14 +157,20 @@ public class ChopsticksGame {
                 public void mouseReleased(MouseEvent e) {
                 	int mouseX = e.getX(); 
                 	int mouseY = e.getY();
-                	if(dragging != null && dragging ==piece){ 
+                	if(dragging != null && dragging == piece){ 
 
-                		if(piece2.leftHandContains(mouseX,mouseY) && piece2.hands.getLeftFingers() < 5){ 
+                		if (!gameState.getPlayerHands().bothHandsOut() && !gameState.getAiHands().bothHandsOut()) {
+
+                			if(piece2.leftHandContains(mouseX,mouseY) && piece2.hands.getLeftFingers() < 5){ 
                 			performMove("player",draggingHand, "ai", "left");
-                		}else if (piece2.rightHandContains(mouseX,mouseY) && piece2.hands.getRightFingers() < 5){ 
-                			performMove("player",draggingHand, "ai", "right");
-                		} else if ((piece.leftHandContains(mouseX,mouseY) && draggingHand == "right") || (piece.rightHandContains(mouseX,mouseY) && draggingHand == "left")){ 
-                			performMove("player",draggingHand,"player","bump"); 
+	                		}
+	                		else if (piece2.rightHandContains(mouseX,mouseY) && piece2.hands.getRightFingers() < 5){ 
+	                			performMove("player",draggingHand, "ai", "right");
+	                		} 
+
+	                		else if ((piece.leftHandContains(mouseX,mouseY) && draggingHand == "right") || (piece.rightHandContains(mouseX,mouseY) && draggingHand == "left")){ 
+	                			performMove("player",draggingHand,"player","bump"); 
+	                		}
                 		}
 
             			if(draggingHand.equals("left")){ 
@@ -212,14 +218,16 @@ public class ChopsticksGame {
             	//initializes hand objects based on gamestate 
             	if(fromPlayer.equals("player")){ 
             		p1 = gameState.getPlayerHands(); 
-            	}else{ 
+            	}
+            	else{ 
             		p1 = gameState.getAiHands(); 
 
             	}
 
             	if(toPlayer.equals("player")){ 
             		p2 = gameState.getPlayerHands(); 
-            	}else{ 
+            	}
+            	else{ 
             		p2 = gameState.getAiHands(); 
             	}
             	
@@ -230,7 +238,7 @@ public class ChopsticksGame {
             		if(p1.canBump()){ 
             			p1.bump(); 
             			endTurn(fromPlayer);
-            			System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + " OUT HAND TO BUMP.");
+            			System.out.println("THE " + fromPlayer + " DRAGGED THEIR " + fromHand + "HAND " + "TO THE " + " OTHER HAND TO BUMP.");
             			System.out.println("PERFORMING BUMP............PLAYER NOW HAS " + p1.getLeftFingers() + " FINGERS ON BOTH HANDS");
             			System.out.println("....AI NOW MAKES A MOVE....");
 		            	System.out.println("....IS IS NOW YOUR TURN....");
@@ -275,7 +283,7 @@ public class ChopsticksGame {
             	//Conditional for initializing the printing of the win state. 
             	if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
             		winnerTxt = gameState.returnWinner();
-            		winnerTxt = "HELLOOOOO";
+            		System.out.println(winnerTxt);
             		repaint(); 
             		return; 
             	}
@@ -296,7 +304,17 @@ public class ChopsticksGame {
 
          	//This helper method updates the gamestate based on the ai's turn
 	        public void updateAiDecisionMaker(){ 
-	        	if(!gameState.getIsAiPlayerTurn()) return; 
+	        	if(!gameState.getIsAiPlayerTurn()) {
+	        		return;
+	        	}
+
+	        	if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
+            		winnerTxt = gameState.returnWinner();
+            		System.out.println(winnerTxt);
+            		repaint(); 
+            		return; 
+            	}
+
 	        	OurGameState newState = aiLogic.findBestMove(gameState); 
 	        	gameState = newState; 
 
@@ -305,7 +323,8 @@ public class ChopsticksGame {
 	        	repaint();
 
 				if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
-            		String winner = gameState.returnWinner();
+            		winnerTxt = gameState.returnWinner();
+            		System.out.println(winnerTxt);
             		repaint(); 
             		return; 
             	}
@@ -391,9 +410,13 @@ public class ChopsticksGame {
 			}
 			//Prints the Winner
 			if(winnerTxt != null){ 
-				g.setColor(Color.RED); 
-				g.setFont(new Font ("Arial", Font.BOLD, 100)); 
-				g.drawString(winnerTxt, 300,300); 
+				g.setColor(Color.BLACK); 
+				g.setFont(new Font ("Serif", Font.BOLD, 100));
+				FontMetrics metrics = g.getFontMetrics(g.getFont());
+				int winnerTxtWidth = metrics.stringWidth(winnerTxt) / 2;
+				int winTextPosX = this.getPreferredSize().width / 2 - winnerTxtWidth;
+				int winTextPosY = (int)(this.getPreferredSize().height / 1.1);
+				g.drawString(winnerTxt, winTextPosX,winTextPosY); 
 			}
 
 		} 
