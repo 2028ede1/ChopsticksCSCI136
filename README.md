@@ -12,3 +12,35 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
    * javac -d bin Chopsticks/*.java (to compile)
    * java -cp bin Chopsticks.Chopsticks (to run the game)
 ![Image](https://github.com/user-attachments/assets/79180656-2ed3-4d36-8f0a-085481f70067)
+
+# To play
+
+To add fingers to either of the opponent's hands, drag your hand ...
+
+# Screenshots
+
+# ADT - MinimaxTree
+
+# Implementation details
+
+# Resources
+
+geeksforgeeks minimax explanations:
+
+[geeksforgeeks - Minimax Algorithm in Game Theory](https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-1-introduction/)
+
+[geeksforgeeks - Introduction to evaluation function of Minimax Algorithm](https://www.geeksforgeeks.org/introduction-to-evaluation-function-of-minimax-algorithm-in-game-theory/)
+
+[geeksforgeeks - Finding optimal move in TicTakToe using Minimax](https://www.geeksforgeeks.org/finding-optimal-move-in-tic-tac-toe-using-minimax-algorithm-in-game-theory/)
+
+our presentation:
+
+[CSCI 136 - Final Project - Game AI](https://docs.google.com/presentation/d/1mDI7ggNKuLaTZpff-jB7mtZdmNo3DhDdX8ASW0Ksv8I/edit?usp=sharing)
+
+videos:
+
+[How computers play games](https://www.youtube.com/watch?v=SLgZhpDsrfc)
+
+# Credits
+
+
