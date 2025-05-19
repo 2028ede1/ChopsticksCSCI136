@@ -32,6 +32,22 @@ Essentially, after the human makes a move, the AI generates all legal moves (wit
 
 # Implementation details
 
+## Hands.java
+
+Hands objects are designed to represent a pair of hands, with instance variables to track the number of fingers on both the left and right hands. It includes methods to add fingers to either hand, as well as to bump or split fingers from one hand to the other when allowed.
+
+## OurGameState.java
+
+OurGameState represents the Gamestate object used by the Minimax algorithm. It includes methods to return a copy of the current game state when needed, track and update whose turn it is, retrieve the Hands objects for both the player and the AI, and print out the winner when the game ends.
+
+## AiDecisionMaker.java
+
+Contains the implementation of the MinimaxTree interface methods. The main instance variable is meant to hold an OurGameState object represent the optimalMove, or more specifically, the resulting game state after the most optimal move is performed. 
+
+## ChopsticksGame.java
+
+Used to run the game. Contains the implementation of UI elements using Swing and other Java graphics libraries, as well as the drag-and-drop interaction logic for performing moves.
+
 # Resources
 
 geeksforgeeks minimax explanations:
