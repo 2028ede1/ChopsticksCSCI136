@@ -29,7 +29,7 @@ public class ChopsticksGame {
 	int ogRightHandYCord; 
 
 	//scale factor for images 
-	private static double scale = 0.25;
+	private static double scale = 0.50;
 
 	public ChopsticksGame(BufferedImage leftHand, BufferedImage rightHand, Hands hands, int leftx, int lefty, int rightx, int righty){ 
 		this.leftHandImage = leftHand; 
@@ -315,8 +315,27 @@ public class ChopsticksGame {
         		// EMMANUEL: ALL I DID HERE WAS CHANGE to properly use getAiHands instead of getPlayerHands
         		BufferedImage aiLeft = ImageIO.read(getClass().getResource("/sprites/left" + gameState.getAiHands().getLeftFingers() +".png"));
         		BufferedImage aiRight = ImageIO.read(getClass().getResource("/sprites/right" + gameState.getAiHands().getRightFingers() +".png"));
-        		piece = new ChopsticksGame(pLeft, pRight, gameState.getPlayerHands(), 100, 0, 300, 0); 
-        		piece2 = new ChopsticksGame(aiLeft, aiRight, gameState.getAiHands(), 750, 0, 950, 0); 
+
+
+        		// SCALING POSITION RELATIVE TO SCREEN SIZE
+
+        		int panelWidth = getPreferredSize().width;
+        		int panelHeight = getPreferredSize().height;
+
+    			int playerHandLeftX = panelWidth - (int)(panelWidth / 1.1);
+    			int playerHandLeftY = panelHeight - (int)(panelHeight / 1.2);
+
+    			int playerHandRightX = playerHandLeftX + 300;
+    			int playerHandRightY = playerHandLeftY;
+
+    			int aiHandLeftX = panelWidth - playerHandLeftX - 2 * (int)(pLeft.getWidth() * scale);
+    			int aiHandLeftY = playerHandLeftY;
+
+    			int aiHandRightX = aiHandLeftX + 300;
+    			int aiHandRightY = playerHandLeftY;
+
+        		piece = new ChopsticksGame(pLeft, pRight, gameState.getPlayerHands(), playerHandLeftX, playerHandLeftY, playerHandRightX , playerHandRightY); 
+        		piece2 = new ChopsticksGame(aiLeft, aiRight, gameState.getAiHands(), aiHandLeftX, aiHandLeftY, aiHandRightX, aiHandRightY); 
 
         	} catch (IOException e) { 
         		e.printStackTrace(); 
@@ -331,19 +350,34 @@ public class ChopsticksGame {
 			if(piece2 != null) piece2.draw(g, this);
 
 			if(vs != null){ 
-				int nw = vs.getWidth()/4;
-				int nh = vs.getHeight()/4;
-				g.drawImage(vs, 550,50,nw,nh,this); 
+				int nw = vs.getWidth()/2;
+				int nh = vs.getHeight()/2;
+
+				// CENTER THE VS IMAGE AT THE CENTER OF THE SCREEN
+				int vsImgPosX = (int)(this.getPreferredSize().width / 2.25);
+				int vsImgPosY = this.getPreferredSize().height / 3;
+
+				g.drawImage(vs, vsImgPosX, vsImgPosY,nw,nh,this); 
 			}
 			if(aiImg != null){ 
-				int nw = aiImg.getWidth()/4;
-				int nh = aiImg.getHeight()/4;
-				g.drawImage(aiImg, 1100,25,nw,nh,this); 
+				int nw = aiImg.getWidth()/2;
+				int nh = aiImg.getHeight()/2;
+
+				// POSITION THE AI TAG RELATIVE TO SCREEN SIZE
+
+				int aiImgPosX = (int)(this.getPreferredSize().width - this.getPreferredSize().width / 3.8);
+				int aiImgPosY = this.getPreferredSize().height / 24;
+				g.drawImage(aiImg, aiImgPosX, aiImgPosY,nw,nh,this); 
 			}
 			if(youImg != null){ 
-				int nw = aiImg.getWidth()/4;
-				int nh = aiImg.getHeight()/4;
-				g.drawImage(youImg, 50,25,nw,nh,this); 
+				int nw = aiImg.getWidth()/2;
+				int nh = aiImg.getHeight()/2;
+
+				// POSITION THE YOU TAG RELATIVE TO SCREEN SIZE
+
+				int youImgPosX = (int)(this.getPreferredSize().width / 4.61);
+				int youImgPosY = this.getPreferredSize().height / 24;
+				g.drawImage(youImg, youImgPosX,youImgPosY,nw,nh,this); 
 			}
 
 		} 
