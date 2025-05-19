@@ -76,6 +76,16 @@ public class OurGameState {
 		else if (this.aiHands.bothHandsOut()) {
 			System.out.println("PLAYER HAS WON!!!!");
 		}
+	} 
+	public String returnWinner(){ 
+		String winner = ""; 
+		if (this.playerHands.bothHandsOut()) {
+			winner = "AI HAS WON!!!!";
+		}
+		else if (this.aiHands.bothHandsOut()) {
+			winner = "PLAYER HAS WON!!!!";
+		}
+		return winner; 
 	}
 
 	/**

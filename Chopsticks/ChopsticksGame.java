@@ -97,24 +97,30 @@ public class ChopsticksGame {
 	}
 
 	public static void main(String[] args){
-		//(TEST CODE)
 
  		JFrame frame = new JFrame("Chopsticks");
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 	    JComponent c = new JComponent(){	   
+	    	//GameState Related Instances
 	     	OurGameState gameState = new OurGameState(new Hands(1,1), new Hands(1,1), false); 
 	    	AiDecisionMaker aiLogic = new AiDecisionMaker(); 
 
+	    	//Player and AI game objects, respectively
 	    	ChopsticksGame piece; 
 	    	ChopsticksGame piece2; 
+
+	    	//the game object being dragged
 	    	ChopsticksGame dragging = null; 
 	    	String draggingHand = ""; 
+
+	    	//GUI images/text 
 	    	BufferedImage vs;
 	    	BufferedImage aiImg;
 	    	BufferedImage youImg;  
+	    	String winnerTxt = null; 
 
-
+	    	//The offset from the original position of the dragged game object
 	    	int offsetX = 0; 
 	    	int offsetY = 0; 
 	    { 
@@ -133,7 +139,7 @@ public class ChopsticksGame {
                 public void mousePressed(MouseEvent e) {
                 	int mouseX = e.getX(); 
                 	int mouseY = e.getY(); 
-
+                	//Initializes the dragging piece object based on where the mouse was pressed. 
                 	if(piece!=null && piece.leftHandContains(mouseX,mouseY)){ 
                 		dragging = piece; 
                 		draggingHand = "left"; 
@@ -203,7 +209,7 @@ public class ChopsticksGame {
             	int numFingers; 
             	Hands p1,p2; 
 
-            	//initializes the hands based on gamestate 
+            	//initializes hand objects based on gamestate 
             	if(fromPlayer.equals("player")){ 
             		p1 = gameState.getPlayerHands(); 
             	}else{ 
@@ -249,7 +255,7 @@ public class ChopsticksGame {
             		numFingers = p1.getRightFingers(); 
             	} 
 
-
+            	//Adds the fingers from the move to the opponent
             	if(toHand.equals("left") && p2.getLeftFingers() < 5){ 
             		p2.addLeftHand(numFingers); 
             		System.out.println("AFTER MOVE AI NOW HAS " + p2.getLeftFingers() + " LEFT FINGERS.");
@@ -266,12 +272,15 @@ public class ChopsticksGame {
             }
             //Helper method for determining the game ending conditions 
             public void endTurn(String fromPlayer){ 
-            	//Win Condition: If either Ai or Player hands are both out
+            	//Conditional for initializing the printing of the win state. 
             	if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
-            		gameState.printWinner(); 
+            		winnerTxt = gameState.returnWinner();
+            		winnerTxt = "HELLOOOOO";
+            		repaint(); 
             		return; 
             	}
-
+            	//If the game is not over, checks whether or not it is the Player's Turn
+            	//If it is the player's turn, set to AI's turn and update the gamestate
             	if(fromPlayer.equals("player")){ 
             		gameState.setIsAiPlayerTurn(true); 
             		updateImages(); 
@@ -296,7 +305,9 @@ public class ChopsticksGame {
 	        	repaint();
 
 				if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
-            		gameState.printWinner(); 
+            		winner = gameState.returnWinner();
+            		winner = "HELLOOOOO";
+            		repaint(); 
             		return; 
             	}
 
@@ -378,6 +389,12 @@ public class ChopsticksGame {
 				int youImgPosX = (int)(this.getPreferredSize().width / 4.61);
 				int youImgPosY = this.getPreferredSize().height / 24;
 				g.drawImage(youImg, youImgPosX,youImgPosY,nw,nh,this); 
+			}
+			//Prints the Winner
+			if(winnerTxt != null){ 
+				g.setColor(Color.RED); 
+				g.setFont(new Font ("Arial", Font.BOLD, 100)); 
+				g.drawString(winnerTxt, 300,300); 
 			}
 
 		} 
