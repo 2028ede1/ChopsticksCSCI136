@@ -15,9 +15,9 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
 
 # To play
 
-To add fingers to either of the opponent's hands, drag your hand ...
+To play the game, click and drag one of your hands onto one of the AI opponent’s hands to perform a tap and add fingers. The number of fingers on your hand is added to the opponent’s hand. If a hand reaches five fingers, it is eliminated. You can also split fingers between your hands by dragging one of your hands onto your other hand. The AI will automatically make its move after yours. The game ends when one player has both hands eliminated.
 
-# Video Demo
+# Video Demonstration
 https://github.com/user-attachments/assets/7b0e43e6-ab76-40d9-a6b5-86941c843148
 
 # Screenshots
