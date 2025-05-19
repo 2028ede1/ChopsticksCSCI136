@@ -18,7 +18,7 @@ A Java implementation of the two-player hand game Chopsticks, where the goal is 
 To add fingers to either of the opponent's hands, drag your hand ...
 
 # Screenshots
-https://github.com/user-attachments/assets/7b0e43e6-ab76-40d9-a6b5-86941c843148 
+<video src="https://github.com/user-attachments/assets/7b0e43e6-ab76-40d9-a6b5-86941c843148" width="300" />
 ![Image](https://github.com/user-attachments/assets/0e84f9d2-eeed-4cdc-8691-8adb5e3da1c5)
 ![Image](https://github.com/user-attachments/assets/91922ec5-1997-4ef3-b571-395258e50543)
 # ADT - MinimaxTree
