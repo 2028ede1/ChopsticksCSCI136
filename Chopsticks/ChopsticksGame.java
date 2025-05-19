@@ -390,6 +390,7 @@ public class ChopsticksGame {
 	    frame.add(c);
 	    frame.pack();
 	    frame.setVisible(true);
+	    frame.setResizable(false);
 
 	}
 
