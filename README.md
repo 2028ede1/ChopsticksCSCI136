@@ -43,4 +43,4 @@ videos:
 
 # Credits
 
-
+our friend Moira helped draw us the hand images for the project 🫶🫶
