@@ -305,8 +305,7 @@ public class ChopsticksGame {
 	        	repaint();
 
 				if(gameState.getPlayerHands().bothHandsOut() || gameState.getAiHands().bothHandsOut()){ 
-            		winner = gameState.returnWinner();
-            		winner = "HELLOOOOO";
+            		String winner = gameState.returnWinner();
             		repaint(); 
             		return; 
             	}
